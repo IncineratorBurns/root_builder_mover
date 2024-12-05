@@ -1,4 +1,5 @@
 #pragma once
+#include <filesystem>
 #include <map>
 #include <wx/string.h>
 #include <wx/vector.h>
@@ -7,6 +8,7 @@ struct Profile
 {
 	static const char* const PROFILE_KEY_PATH;
 	static const char* const PROFILE_KEY_DIRS;
+	static const char* const PROFILE_KEY_DIRS_EXCLUDE;
 	static const char* const PROFILE_KEY_FILES;
 	static const char* const PROFILE_KEY_FILES_EXCLUDE;
 
@@ -15,17 +17,18 @@ struct Profile
 	wxString m_name;
 
 	std::map<wxString, wxString> m_key_vals{
-		{ PROFILE_KEY_PATH, "" }, { PROFILE_KEY_DIRS, "" }, { PROFILE_KEY_FILES, "" }
+		{ PROFILE_KEY_PATH, "" }, { PROFILE_KEY_DIRS, "" }, { PROFILE_KEY_DIRS_EXCLUDE, "" },{ PROFILE_KEY_FILES, "" }, { PROFILE_KEY_FILES_EXCLUDE, "" }
 	};
 
 	Profile() = default;
-	Profile(const wxString& a_name, const wxString& a_mod_path, const wxString& a_dirs,
+	Profile(const wxString& a_name, const wxString& a_mod_path, const wxString& a_dirs, const wxString& a_dirs_exclude,
 	        const wxString& a_files, const wxString& a_files_exclude);
 	Profile(const wxString& a_name, const wxVector<std::pair<wxString, wxString>>& a_entries);
 
-	wxVector<wxString> GetDirsVec() const;
-	wxVector<wxString> GetFilesVec() const;
-	wxVector<wxString> GetFileExcludesVec() const;
+	wxVector<wxString> Dirs() const;
+	wxVector<wxString> DirsExclude() const;
+	wxVector<wxString> Files() const;
+	wxVector<wxString> FilesExclude() const;
 
 	const wxString& operator[](const char* a_key) const;
 	wxString& operator[](const char* a_key);

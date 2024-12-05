@@ -12,6 +12,13 @@ wxVector<wxString> Utils::Tokenize(const wxString& a_src, const wxString& a_deli
 	return l_ret;
 }
 
+wxVector<wxString> Utils::ReplaceDelimiterAndTokenize(wxString a_src, const wxString& a_olddelim,
+	const wxString& a_newdelim)
+{
+	a_src.Replace(a_olddelim, a_newdelim, true);
+	return Utils::Tokenize(a_src, "\n");
+}
+
 std::pair<wxString, wxString> Utils::ConfigEntryTokenize(const wxString& a_src)
 {
 	auto l_delim_pos = a_src.find("=");

@@ -54,11 +54,15 @@ MyFrame1::MyFrame1( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	m_staticText2->Wrap( -1 );
 	bSizer7->Add( m_staticText2, 0, wxALL, 5 );
 
+	m_staticText5 = new wxStaticText( sbSizer2->GetStaticBox(), wxID_ANY, wxT("Directories exclude:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText5->Wrap( -1 );
+	bSizer7->Add( m_staticText5, 0, wxALL, 5 );
+
 	m_staticText3 = new wxStaticText( sbSizer2->GetStaticBox(), wxID_ANY, wxT("Files to move:"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText3->Wrap( -1 );
 	bSizer7->Add( m_staticText3, 0, wxALL, 5 );
 
-	m_staticText31 = new wxStaticText( sbSizer2->GetStaticBox(), wxID_ANY, wxT("Exclude files:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText31 = new wxStaticText( sbSizer2->GetStaticBox(), wxID_ANY, wxT("Files exclude:"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText31->Wrap( -1 );
 	bSizer7->Add( m_staticText31, 0, wxALL, 5 );
 
@@ -88,18 +92,29 @@ MyFrame1::MyFrame1( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	bSizer4 = new wxBoxSizer( wxHORIZONTAL );
 
 	m_textCtrl_directories_to_move = new wxTextCtrl( sbSizer2->GetStaticBox(), wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
-	m_textCtrl_directories_to_move->SetToolTip( wxT("PCRE regular expressions delimited with \"||\".\nNote: white space characters are real characters and thus will impact the match logic.\nExample:\n^bin$||^r4$||^red4ext$\n^ - beginning of a word, $ - end of a word.\nThus, the line will match dirs bin, r4 and red4ext.\n") );
+	m_textCtrl_directories_to_move->SetToolTip( wxT("PCRE (regular expressions) delimited with \"||\".\n\nExamples:\n^bin$||^r4$||^red4ext$\n^ - beginning of a word, $ - end of a word, || - delimiter.\nThus, the line will match \"bin\", \"r6\" and \"red4ext\".\n\n. - any symbol except new line, .* - any number (including 0) of any symbols. To match the dot iteslf, \"escape\" it with \"\".\n.*.exe$ - would match any name that ends with \".exe\".\n\n^bin (without $ at the end) would match \"bin\", \"binary\", \"binwhatever\", but would not match \"combine\".\nbin (with no ^ nor $) would match \"combine\".\n") );
 
 	bSizer4->Add( m_textCtrl_directories_to_move, 1, wxALIGN_CENTER_VERTICAL|wxALL, 2 );
 
 
 	bSizer8->Add( bSizer4, 0, wxEXPAND, 5 );
 
+	wxBoxSizer* bSizer41;
+	bSizer41 = new wxBoxSizer( wxHORIZONTAL );
+
+	m_textCtrl_directories_exclude = new wxTextCtrl( sbSizer2->GetStaticBox(), wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	m_textCtrl_directories_exclude->SetToolTip( wxT("PCRE (regular expressions) delimited with \"||\".\n\nExamples:\n^bin$||^r4$||^red4ext$\n^ - beginning of a word, $ - end of a word, || - delimiter.\nThus, the line will match \"bin\", \"r6\" and \"red4ext\".\n\n. - any symbol except new line, .* - any number (including 0) of any symbols. To match the dot iteslf, \"escape\" it with \"\".\n.*.exe$ - would match any name that ends with \".exe\".\n\n^bin (without $ at the end) would match \"bin\", \"binary\", \"binwhatever\", but would not match \"combine\".\nbin (with no ^ nor $) would match \"combine\".\n") );
+
+	bSizer41->Add( m_textCtrl_directories_exclude, 1, wxALIGN_CENTER_VERTICAL|wxALL, 2 );
+
+
+	bSizer8->Add( bSizer41, 1, wxEXPAND, 5 );
+
 	wxBoxSizer* bSizer6;
 	bSizer6 = new wxBoxSizer( wxHORIZONTAL );
 
 	m_textCtrl_file_extensions_to_move = new wxTextCtrl( sbSizer2->GetStaticBox(), wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
-	m_textCtrl_file_extensions_to_move->SetToolTip( wxT("PCRE regular expressions delimited with \"||\".\nNote: white space characters are real characters and thus will impact the match logic.\nExamples:\n1. Same as for dirs but will match files, not dirs.\n2. .*.exe$||.*.dll$ - match all exe and dll files.\n3. .* - match all files.") );
+	m_textCtrl_file_extensions_to_move->SetToolTip( wxT("PCRE (regular expressions) delimited with \"||\".\n\nExamples:\n^bin$||^r4$||^red4ext$\n^ - beginning of a word, $ - end of a word, || - delimiter.\nThus, the line will match \"bin\", \"r6\" and \"red4ext\".\n\n. - any symbol except new line, .* - any number (including 0) of any symbols. To match the dot iteslf, \"escape\" it with \"\".\n.*.exe$ - would match any name that ends with \".exe\".\n\n^bin (without $ at the end) would match \"bin\", \"binary\", \"binwhatever\", but would not match \"combine\".\nbin (with no ^ nor $) would match \"combine\".\n") );
 
 	bSizer6->Add( m_textCtrl_file_extensions_to_move, 1, wxALIGN_CENTER_VERTICAL|wxALL, 2 );
 
@@ -110,7 +125,7 @@ MyFrame1::MyFrame1( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	bSizer61 = new wxBoxSizer( wxHORIZONTAL );
 
 	m_textCtrl_file_exclude = new wxTextCtrl( sbSizer2->GetStaticBox(), wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
-	m_textCtrl_file_exclude->SetToolTip( wxT("PCRE regular expressions delimited with \"||\".\nNote: white space characters are real characters and thus will impact the match logic.\nExamples:\n1. Same as above.\n2. ^meta.ini$") );
+	m_textCtrl_file_exclude->SetToolTip( wxT("PCRE (regular expressions) delimited with \"||\".\n\nExamples:\n^bin$||^r4$||^red4ext$\n^ - beginning of a word, $ - end of a word, || - delimiter.\nThus, the line will match \"bin\", \"r6\" and \"red4ext\".\n\n. - any symbol except new line, .* - any number (including 0) of any symbols. To match the dot iteslf, \"escape\" it with \"\".\n.*.exe$ - would match any name that ends with \".exe\".\n\n^bin (without $ at the end) would match \"bin\", \"binary\", \"binwhatever\", but would not match \"combine\".\nbin (with no ^ nor $) would match \"combine\".\n") );
 
 	bSizer61->Add( m_textCtrl_file_exclude, 1, wxALIGN_CENTER_VERTICAL|wxALL, 2 );
 
@@ -126,8 +141,8 @@ MyFrame1::MyFrame1( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	wxStaticBoxSizer* sbSizer3;
 	sbSizer3 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("Log") ), wxVERTICAL );
 
-	m_textCtrl_log = new wxTextCtrl( sbSizer3->GetStaticBox(), wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE );
-	sbSizer3->Add( m_textCtrl_log, 1, wxALL|wxEXPAND, 5 );
+	m_richText_Log = new wxRichTextCtrl( sbSizer3->GetStaticBox(), wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0|wxVSCROLL|wxHSCROLL|wxNO_BORDER|wxWANTS_CHARS );
+	sbSizer3->Add( m_richText_Log, 1, wxEXPAND | wxALL, 5 );
 
 
 	bSizer1->Add( sbSizer3, 1, wxALL|wxEXPAND, 5 );

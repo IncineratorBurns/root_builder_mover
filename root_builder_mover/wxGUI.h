@@ -25,6 +25,7 @@
 #include <wx/statbox.h>
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
+#include <wx/richtext/richtextctrl.h>
 #include <wx/hyperlink.h>
 #include <wx/frame.h>
 
@@ -49,14 +50,16 @@ namespace wxGUI
 				wxButton* m_button_download_update;
 				wxStaticText* m_staticText1;
 				wxStaticText* m_staticText2;
+				wxStaticText* m_staticText5;
 				wxStaticText* m_staticText3;
 				wxStaticText* m_staticText31;
 				wxTextCtrl* m_textCtrl_path_mods_folder;
 				wxButton* m_button_browse_mod_dir_path;
 				wxTextCtrl* m_textCtrl_directories_to_move;
+				wxTextCtrl* m_textCtrl_directories_exclude;
 				wxTextCtrl* m_textCtrl_file_extensions_to_move;
 				wxTextCtrl* m_textCtrl_file_exclude;
-				wxTextCtrl* m_textCtrl_log;
+				wxRichTextCtrl* m_richText_Log;
 				wxHyperlinkCtrl* m_hyperlink1;
 				wxHyperlinkCtrl* m_hyperlink2;
 				wxButton* m_button6;

@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <wx/msgdlg.h>
 
+#include "Logging.h"
 #include "Profiles.h"
 #include "Utils.h"
 namespace fs = std::filesystem;
@@ -80,6 +81,7 @@ void wxGUI::wxGUI::SelectProfile(const wxString& a_name, bool a_setProfileComboV
 
 	m_textCtrl_path_mods_folder->SetValue(l_selected_profile[Profile::PROFILE_KEY_PATH]);
 	m_textCtrl_directories_to_move->SetValue(l_selected_profile[Profile::PROFILE_KEY_DIRS]);
+	m_textCtrl_directories_exclude->SetValue(l_selected_profile[Profile::PROFILE_KEY_DIRS_EXCLUDE]);
 	m_textCtrl_file_extensions_to_move->SetValue(l_selected_profile[Profile::PROFILE_KEY_FILES]);
 	m_textCtrl_file_exclude->SetValue(l_selected_profile[Profile::PROFILE_KEY_FILES_EXCLUDE]);
 
@@ -105,6 +107,7 @@ Profile wxGUI::wxGUI::ProfileFromGUI() const
 	return { m_comboBox_Profile->GetValue(),
 		m_textCtrl_path_mods_folder->GetValue(),
 		m_textCtrl_directories_to_move->GetValue(),
+		m_textCtrl_directories_exclude->GetValue(),
 		m_textCtrl_file_extensions_to_move->GetValue(),
 		m_textCtrl_file_exclude->GetValue()};
 }
@@ -186,8 +189,9 @@ void wxGUI::wxGUI::OnBtnUpdate(wxCommandEvent& event)
 wxGUI::wxGUI::wxGUI()
 	: MyFrame1(nullptr)
 {
-	m_logger = new wxLogTextCtrl(m_textCtrl_log);
-	m_logger->SetActiveTarget(m_logger);
+	//m_logger = new wxLogTextCtrl(m_textCtrl_log);
+	//m_logger->SetActiveTarget(m_logger);
+	LoggerCtrl::Instance(m_richText_Log);
 
 	ReadConf(ProfilesDB::Instance().m_bundled_profiles, CONFIG_NAME_BUNDLED);
 	ReadConf(ProfilesDB::Instance().m_custom_profiles, CONFIG_NAME_CUSTOM);

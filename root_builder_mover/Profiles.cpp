@@ -1,16 +1,23 @@
 #include "Profiles.h"
 
+
+#include <strsafe.h>
+
 #include <filesystem>
 #include <iostream>
+
+#include "Logging.h"
 namespace fs = std::filesystem;
 #include <wx/log.h>
 #include <wx/regex.h>
 #include <wx/string.h>
 
 #include "Utils.h"
+#include "FileSystemUtils.h"
 
 const char* const Profile::PROFILE_KEY_PATH = "path";
 const char* const Profile::PROFILE_KEY_DIRS = "dirs";
+const char* const Profile::PROFILE_KEY_DIRS_EXCLUDE = "dirs_exclude";
 const char* const Profile::PROFILE_KEY_FILES = "files";
 const char* const Profile::PROFILE_KEY_FILES_EXCLUDE = "files_exclude";
 const std::map<wxString, wxString> Profile::s_messages = {
@@ -19,11 +26,13 @@ const std::map<wxString, wxString> Profile::s_messages = {
 };
 
 Profile::Profile(const wxString& a_name, const wxString& a_mod_path, const wxString& a_dirs,
+                 const wxString& a_dirs_exclude,
                  const wxString& a_files, const wxString& a_files_exclude)
 	: m_name(a_name)
 {
 	m_key_vals[PROFILE_KEY_PATH] = a_mod_path;
 	m_key_vals[PROFILE_KEY_DIRS] = a_dirs;
+	m_key_vals[PROFILE_KEY_DIRS_EXCLUDE] = a_dirs_exclude;
 	m_key_vals[PROFILE_KEY_FILES] = a_files;
 	m_key_vals[PROFILE_KEY_FILES_EXCLUDE] = a_files_exclude;
 }
@@ -35,25 +44,24 @@ Profile::Profile(const wxString& a_name, const wxVector<std::pair<wxString, wxSt
 		m_key_vals[l_key] = l_val;
 }
 
-wxVector<wxString> Profile::GetDirsVec() const
+wxVector<wxString> Profile::Dirs() const
 {
-	auto l_val = m_key_vals.at(PROFILE_KEY_DIRS);
-	l_val.Replace("||", "\n", true);
-	return Utils::Tokenize(l_val, "\n");
+	return Utils::ReplaceDelimiterAndTokenize(m_key_vals.at(PROFILE_KEY_DIRS));
 }
 
-wxVector<wxString> Profile::GetFilesVec() const
+wxVector<wxString> Profile::DirsExclude() const
 {
-	auto l_val = m_key_vals.at(PROFILE_KEY_FILES);
-	l_val.Replace("||", "\n", true);
-	return Utils::Tokenize(l_val, "\n");
+	return Utils::ReplaceDelimiterAndTokenize(m_key_vals.at(PROFILE_KEY_DIRS_EXCLUDE));
 }
 
-wxVector<wxString> Profile::GetFileExcludesVec() const
+wxVector<wxString> Profile::Files() const
 {
-	auto l_val = m_key_vals.at(PROFILE_KEY_FILES_EXCLUDE);
-	l_val.Replace("||", "\n", true);
-	return Utils::Tokenize(l_val, "\n");
+	return Utils::ReplaceDelimiterAndTokenize(m_key_vals.at(PROFILE_KEY_FILES));
+}
+
+wxVector<wxString> Profile::FilesExclude() const
+{
+	return Utils::ReplaceDelimiterAndTokenize(m_key_vals.at(PROFILE_KEY_FILES_EXCLUDE));
 }
 
 const wxString& Profile::operator[](const char* a_key) const
@@ -87,6 +95,15 @@ std::map<wxString, Profile> ProfilesDB::GetMergedProfilesMap() const
 	return l_ret;
 }
 
+
+struct Match
+{
+	wxString m_name;
+	fs::path m_path;
+	std::vector<fs::path> m_files;
+	std::vector<fs::path> m_empty_dirs;
+};
+
 void Profile::Execute(bool a_simulate) const
 {
 	if (m_key_vals.at(PROFILE_KEY_PATH).empty())
@@ -109,23 +126,27 @@ void Profile::Execute(bool a_simulate) const
 	}
 
 	int l_counter = 0;
+	int l_fail_counter = 0;
 
 	if (a_simulate)
-		wxLogMessage("!!! This is a simulation. Nothing will be moved.");
+		wxLogMessage("This is a simulation. Nothing will be moved.");
 
-	auto l_file_regexes = GetFilesVec();
-	auto l_file_exclude_regexes = GetFileExcludesVec();
-	auto l_dir_regexes = GetDirsVec();
-	auto l_dir_excludes = wxVector<wxString>();
+	auto l_file_regexes = Files();
+	auto l_file_exclude_regexes = FilesExclude();
+	auto l_dir_regexes = Dirs();
+	auto l_dir_excludes = DirsExclude();
 
 	wxVector<wxString>* l_active_regex_match;
 	wxVector<wxString>* l_active_regex_exclude;
 
 	for (auto& l_mod_dir : fs::directory_iterator{ l_modspath }) // iterator is an element in MO mods path
 	{
+		std::vector<Match> l_matches_in_mod;
+
+		// Detect all the files and directories matching the set regexes:
 		for (auto& l_mod_child : fs::directory_iterator(l_mod_dir)) // iterator is an item in mod's dir
 		{
-			// We need the name of this directory, and this is how we do it in C++:
+			// The name of currently processed file or directory inside mod's folder shall be this:
 			auto l_object_name = wxString(l_mod_child.path().filename());
 
 			if (l_mod_child.is_directory())
@@ -157,27 +178,82 @@ void Profile::Execute(bool a_simulate) const
 				if (!l_regex.Matches(l_object_name))
 					continue;
 
-				fs::path l_root_path(l_mod_dir.path());
-				l_root_path /= "root";
-
-				if (!a_simulate && !fs::exists(l_root_path))
-					fs::create_directory(l_root_path);
-
-				l_root_path /= l_object_name.ToStdWstring();
-
-				wxLogMessage("( %d ) Source: %s\n\tDest: %s", l_counter++, l_mod_child.path().wstring(),
-				             l_root_path.c_str());
-
-				if (!a_simulate)
-					fs::rename(l_mod_child, l_root_path);
+				l_matches_in_mod.emplace_back(l_object_name, l_mod_child.path());
 			}
 		}
+
+		// For each matching directory, traverse it recuresively to detect all the regular files and save their paths.
+		// Also, save all the empty directories - their paths are also to be recreated.
+		for (auto& l_match : l_matches_in_mod)
+			if (is_directory(l_match.m_path))
+				for (auto l_it : fs::recursive_directory_iterator(l_match.m_path))
+					if (l_it.is_regular_file())
+						l_match.m_files.push_back(l_it.path());
+					else if (l_it.is_directory() && fs::is_empty(l_it))
+						l_match.m_empty_dirs.emplace_back(l_it.path());
+
+		// For each detected file path, reconstruct the directory trees relative to the root folder within the mod:
+		if (!l_matches_in_mod.empty())
+		{
+			PrintSeparator();
+			PrintLineSeparator();
+			PrintLog(l_mod_dir.path().filename().wstring(), l_counter);
+			PrintSeparator();
+		}
+
+		for (auto& l_match : l_matches_in_mod)
+		{
+			for (auto& l_path : l_match.m_files)
+			{
+				auto l_new_path = l_match.m_path.parent_path();
+				l_new_path /= "root";
+
+				fs::path l_path_starting_with_match_name = PartitionPath(l_path, l_match.m_name, 1).second;
+				l_new_path /= l_path_starting_with_match_name;
+
+				if (fs::exists(l_new_path))
+					STLFSFuncAndLog(a_simulate, fs::remove_all, FUNC_NAME_REMOVE_ALL, l_counter, l_new_path);
+
+				MoveFileWithSTL(a_simulate, l_counter, l_fail_counter, l_path, l_new_path);
+
+				++l_counter;
+
+				PrintSeparator();
+			}
+
+			for (auto& l_path : l_match.m_empty_dirs)
+			{
+				auto l_new_path = l_match.m_path.parent_path();
+				l_new_path /= "root";
+
+				fs::path l_path_starting_with_match_name = PartitionPath(l_path, l_match.m_name, 1).second;
+				l_new_path /= l_path_starting_with_match_name;
+
+				if (fs::exists(l_new_path) && !is_directory(l_new_path))
+				{
+					STLFSFuncAndLog(a_simulate, fs::remove_all, FUNC_NAME_REMOVE_ALL, l_counter, l_new_path);
+					STLFSFuncAndLog(a_simulate, fs::create_directories, FUNC_NAME_CREATE_DIRS, l_counter, l_new_path);
+				}
+				else if (!fs::exists(l_new_path))
+					STLFSFuncAndLog(a_simulate, fs::create_directories, FUNC_NAME_CREATE_DIRS, l_counter, l_new_path);
+
+				++l_counter;
+
+				PrintSeparator();
+			}
+
+			STLFSFuncAndLog(a_simulate, std::filesystem::remove_all, FUNC_NAME_REMOVE_ALL, l_counter,
+			                l_match.m_path);
+			PrintSeparator();
+		}
+
+		//MoveWithWinAPI(a_simulate, l_counter, l_fail_counter, l_mod_child.path(), l_root_path);
 	}
 
-	wxLogMessage("Operations executed: %d", l_counter);
+	wxLogMessage("Errors: %d.", l_fail_counter);
 
 	if (a_simulate)
-		wxLogMessage("!!! This run was a simulation, so nothing has been moved. Click Run to apply these changes.");
+		wxLogMessage("This run was a simulation, so nothing has been moved. Click Run to apply these changes.");
 	else
 		wxLogMessage("All done. %s", Message());
 }
@@ -194,7 +270,7 @@ bool Profile::IsEmpty() const
 wxString Profile::Message() const
 {
 	for (const auto& [l_msg_profile_name, l_msg] : Profile::s_messages)
-		if (l_msg_profile_name.Contains(m_name.Lower()))
+		if (l_msg_profile_name.Lower().Contains(m_name.Lower()))
 			return l_msg;
 
 	return "";
