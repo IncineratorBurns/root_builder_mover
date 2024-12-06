@@ -33,6 +33,9 @@ namespace wxGUI
 		void OnBtnSimulate(wxCommandEvent& event) override;
 		void PossiblySaveCurrentProfile() const;
 		void OnProfilesComboDropDown(wxCommandEvent& event) override;
+		void OnBtnLogClear(wxCommandEvent& event) override;
+		void OnBtnLogExport(wxCommandEvent& event) override;
+		void OnFilterChoice(wxCommandEvent& event) override;
 
 	public:
 

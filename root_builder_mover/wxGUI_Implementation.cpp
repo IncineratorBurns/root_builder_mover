@@ -4,6 +4,7 @@
 #include <wx/msgdlg.h>
 
 #include "Logging.h"
+#include "MultiLineRenderer.h"
 #include "Profiles.h"
 #include "Utils.h"
 namespace fs = std::filesystem;
@@ -13,6 +14,7 @@ namespace fs = std::filesystem;
 #include <wx/dirdlg.h>
 #include <wx/url.h>
 #include <wx/log.h>
+#include <wx/filedlg.h>
 
 const wxString CONFIG_APP_GROUP = "root_builder_mover";
 const char* const CONFIG_NAME_BUNDLED = "bundled.cfg";
@@ -67,12 +69,12 @@ void wxGUI::wxGUI::ReadConf(std::map<wxString, Profile>& a_dst, const wxString& 
 	if (fs::exists(a_conf_filename.c_str().AsWChar()))
 	{
 		wxFileInputStream l_fileStream(a_conf_filename);
-		ReadConfFromStream(a_dst,l_fileStream);
+		ReadConfFromStream(a_dst, l_fileStream);
 
-		wxLogMessage("Config %s loaded.", a_conf_filename);
+		PrintInfo(wxString::Format("Config %s loaded.", a_conf_filename), META_CORE);
 	}
 	else
-		wxLogMessage("Config %s not found.", a_conf_filename);
+		PrintInfo(wxString::Format("Config %s not found.", a_conf_filename), META_CORE);
 }
 
 void wxGUI::wxGUI::SelectProfile(const wxString& a_name, bool a_setProfileComboVal) const
@@ -104,12 +106,14 @@ void wxGUI::wxGUI::ProfileListRefresh() const
 
 Profile wxGUI::wxGUI::ProfileFromGUI() const
 {
-	return { m_comboBox_Profile->GetValue(),
+	return {
+		m_comboBox_Profile->GetValue(),
 		m_textCtrl_path_mods_folder->GetValue(),
 		m_textCtrl_directories_to_move->GetValue(),
 		m_textCtrl_directories_exclude->GetValue(),
 		m_textCtrl_file_extensions_to_move->GetValue(),
-		m_textCtrl_file_exclude->GetValue()};
+		m_textCtrl_file_exclude->GetValue()
+	};
 }
 
 void wxGUI::wxGUI::OnProfilesComboItemSelected(wxCommandEvent& event)
@@ -152,7 +156,7 @@ void wxGUI::wxGUI::OnBtnRun(wxCommandEvent& event)
 
 	if (l_profile_name.empty())
 	{
-		wxLogMessage("No profile selected. Can't do anything.");
+		PrintInfo("No profile selected. Can't do anything.", META_CORE);
 		return;
 	}
 
@@ -182,7 +186,7 @@ void wxGUI::wxGUI::OnBtnUpdate(wxCommandEvent& event)
 	}
 	catch (const std::exception& l_ex)
 	{
-		wxLogMessage(l_ex.what());
+		PrintInfo(l_ex.what(), "Updater");
 	}
 }
 
@@ -191,7 +195,20 @@ wxGUI::wxGUI::wxGUI()
 {
 	//m_logger = new wxLogTextCtrl(m_textCtrl_log);
 	//m_logger->SetActiveTarget(m_logger);
-	LoggerCtrl::Instance(m_richText_Log);
+	//LoggerCtrl::Instance(m_richText_Log);
+
+	Logger::Instance(m_dataViewListCtrl_Log);
+
+
+	m_dataViewListCtrl_Log->GetColumn(2)->SetWidth(FromDIP(200));
+
+	// Add a multiline text column to the log dataview:
+	auto l_renderer = new MultiLineCustomRenderer();
+	auto l_column = new wxDataViewColumn("Info", l_renderer, 3, FromDIP(200), wxALIGN_LEFT, wxDATAVIEW_COL_RESIZABLE);
+	l_column->SetMinWidth(FromDIP(150));
+	m_dataViewListCtrl_Log->AppendColumn(l_column);
+
+	m_dataViewListCtrl_Log->SetFont(wxFont(8, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 
 	ReadConf(ProfilesDB::Instance().m_bundled_profiles, CONFIG_NAME_BUNDLED);
 	ReadConf(ProfilesDB::Instance().m_custom_profiles, CONFIG_NAME_CUSTOM);
@@ -231,7 +248,7 @@ void wxGUI::wxGUI::OnBtnSimulate(wxCommandEvent& event)
 
 	if (l_profile_name.empty())
 	{
-		wxLogMessage("No profile selected. Can't do anything.");
+		PrintInfo("No profile selected. Can't do anything.", META_CORE);
 		return;
 	}
 
@@ -248,7 +265,8 @@ void wxGUI::wxGUI::PossiblySaveCurrentProfile() const
 		return;
 
 	// Don't save the profile if it's not been modified from the one in bundles:
-	if (ProfilesDB::Instance().m_bundled_profiles.count(l_profile_from_gui.m_name) == 1 && ProfilesDB::Instance().m_bundled_profiles.at(l_profile_from_gui.m_name) == l_profile_from_gui)
+	if (ProfilesDB::Instance().m_bundled_profiles.count(l_profile_from_gui.m_name) == 1 && ProfilesDB::Instance().
+		m_bundled_profiles.at(l_profile_from_gui.m_name) == l_profile_from_gui)
 		return;
 
 	// If profile name is empty, generate it.
@@ -261,4 +279,43 @@ void wxGUI::wxGUI::PossiblySaveCurrentProfile() const
 void wxGUI::wxGUI::OnProfilesComboDropDown(wxCommandEvent& event)
 {
 	PossiblySaveCurrentProfile();
+}
+
+void wxGUI::wxGUI::OnBtnLogClear(wxCommandEvent& event)
+{
+	Logger::Instance().Clear();
+}
+
+void wxGUI::wxGUI::OnBtnLogExport(wxCommandEvent& event)
+{
+	wxFileDialog l_dlg(this, "Save log as text file", wxEmptyString, "root_builder_mover.log.txt");
+	if (l_dlg.ShowModal() == wxID_CANCEL)
+		return;
+
+	wxFile l_out(l_dlg.GetPath(), wxFile::write);
+	if (!l_out.IsOpened())
+	{
+		PrintError(wxString::Format("Can't open file %s for writing.", l_dlg.GetPath()), "[ EXPORT ]");
+		return;
+	}
+
+	for (const auto& l_item : Logger::Instance().m_all_events)
+		if (Logger::Instance().m_filter == LogItemType::All || Logger::Instance().m_filter == l_item.m_type)
+			l_out.Write(wxString::Format("%d\t%s\t%s\t%s\n\n", l_item.m_sn, l_item.TypeLiteral(), l_item.m_meta, l_item.m_info));
+
+	if (l_out.Error())
+	{
+		wxMessageBox(wxString::Format("Couldn't export the log. Last error is %s", wxSysErrorMsgStr(l_out.GetLastError())));
+		l_out.Close();
+	}
+
+	l_out.Close();
+
+	wxMessageBox("Log exported successfully.");
+}
+
+void wxGUI::wxGUI::OnFilterChoice(wxCommandEvent& event)
+{
+	auto l_choice = m_choice_Filter->GetSelection();
+	Logger::Instance().Filter(static_cast<LogItemType>(l_choice));
 }

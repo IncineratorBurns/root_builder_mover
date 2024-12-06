@@ -25,7 +25,8 @@
 #include <wx/statbox.h>
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
-#include <wx/richtext/richtextctrl.h>
+#include <wx/choice.h>
+#include <wx/dataview.h>
 #include <wx/hyperlink.h>
 #include <wx/frame.h>
 
@@ -59,7 +60,15 @@ namespace wxGUI
 				wxTextCtrl* m_textCtrl_directories_exclude;
 				wxTextCtrl* m_textCtrl_file_extensions_to_move;
 				wxTextCtrl* m_textCtrl_file_exclude;
-				wxRichTextCtrl* m_richText_Log;
+				wxStaticText* m_staticText7;
+				wxChoice* m_choice_Filter;
+				wxStaticLine* m_staticline3;
+				wxButton* m_button_log_clear;
+				wxButton* m_button_export;
+				wxDataViewListCtrl* m_dataViewListCtrl_Log;
+				wxDataViewColumn* m_dataViewListColumn_SN;
+				wxDataViewColumn* m_dataViewListColumn_Type;
+				wxDataViewColumn* m_dataViewListColumn_Meta;
 				wxHyperlinkCtrl* m_hyperlink1;
 				wxHyperlinkCtrl* m_hyperlink2;
 				wxButton* m_button6;
@@ -71,6 +80,9 @@ namespace wxGUI
 				virtual void OnBtnProfileDel( wxCommandEvent& event ) { event.Skip(); }
 				virtual void OnBtnUpdate( wxCommandEvent& event ) { event.Skip(); }
 				virtual void OnBrowse( wxCommandEvent& event ) { event.Skip(); }
+				virtual void OnFilterChoice( wxCommandEvent& event ) { event.Skip(); }
+				virtual void OnBtnLogClear( wxCommandEvent& event ) { event.Skip(); }
+				virtual void OnBtnLogExport( wxCommandEvent& event ) { event.Skip(); }
 				virtual void OnBtnSimulate( wxCommandEvent& event ) { event.Skip(); }
 				virtual void OnBtnRun( wxCommandEvent& event ) { event.Skip(); }
 
@@ -78,7 +90,7 @@ namespace wxGUI
 			public:
 				wxString m_profile_combobox_value;
 
-				MyFrame1( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Mover for the Root Builder"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 714,547 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
+				MyFrame1( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Mover for the Root Builder"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 959,838 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
 
 				~MyFrame1();
 

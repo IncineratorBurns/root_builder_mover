@@ -141,8 +141,38 @@ MyFrame1::MyFrame1( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	wxStaticBoxSizer* sbSizer3;
 	sbSizer3 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("Log") ), wxVERTICAL );
 
-	m_richText_Log = new wxRichTextCtrl( sbSizer3->GetStaticBox(), wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0|wxVSCROLL|wxHSCROLL|wxNO_BORDER|wxWANTS_CHARS );
-	sbSizer3->Add( m_richText_Log, 1, wxEXPAND | wxALL, 5 );
+	wxBoxSizer* bSizer14;
+	bSizer14 = new wxBoxSizer( wxHORIZONTAL );
+
+	m_staticText7 = new wxStaticText( sbSizer3->GetStaticBox(), wxID_ANY, wxT("Filter:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText7->Wrap( -1 );
+	bSizer14->Add( m_staticText7, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	wxString m_choice_FilterChoices[] = { wxT("Info"), wxT("Success"), wxT("Error"), wxT("All") };
+	int m_choice_FilterNChoices = sizeof( m_choice_FilterChoices ) / sizeof( wxString );
+	m_choice_Filter = new wxChoice( sbSizer3->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, m_choice_FilterNChoices, m_choice_FilterChoices, 0 );
+	m_choice_Filter->SetSelection( 3 );
+	m_choice_Filter->SetMinSize( wxSize( 100,-1 ) );
+
+	bSizer14->Add( m_choice_Filter, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_staticline3 = new wxStaticLine( sbSizer3->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
+	bSizer14->Add( m_staticline3, 0, wxEXPAND | wxALL, 5 );
+
+	m_button_log_clear = new wxButton( sbSizer3->GetStaticBox(), wxID_ANY, wxT("Clear"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer14->Add( m_button_log_clear, 0, wxALL, 5 );
+
+	m_button_export = new wxButton( sbSizer3->GetStaticBox(), wxID_ANY, wxT("Export"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer14->Add( m_button_export, 0, wxALL, 5 );
+
+
+	sbSizer3->Add( bSizer14, 0, wxALIGN_RIGHT, 5 );
+
+	m_dataViewListCtrl_Log = new wxDataViewListCtrl( sbSizer3->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxDV_VARIABLE_LINE_HEIGHT );
+	m_dataViewListColumn_SN = m_dataViewListCtrl_Log->AppendTextColumn( wxT("#"), wxDATAVIEW_CELL_INERT, -1, static_cast<wxAlignment>(wxALIGN_LEFT), wxDATAVIEW_COL_RESIZABLE );
+	m_dataViewListColumn_Type = m_dataViewListCtrl_Log->AppendIconTextColumn( wxT("Type"), wxDATAVIEW_CELL_INERT, -1, static_cast<wxAlignment>(wxALIGN_LEFT), wxDATAVIEW_COL_RESIZABLE );
+	m_dataViewListColumn_Meta = m_dataViewListCtrl_Log->AppendTextColumn( wxT("Meta"), wxDATAVIEW_CELL_INERT, -1, static_cast<wxAlignment>(wxALIGN_LEFT), wxDATAVIEW_COL_RESIZABLE );
+	sbSizer3->Add( m_dataViewListCtrl_Log, 1, wxALL|wxEXPAND, 5 );
 
 
 	bSizer1->Add( sbSizer3, 1, wxALL|wxEXPAND, 5 );
@@ -189,6 +219,9 @@ MyFrame1::MyFrame1( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	m_button_profile_delete->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnProfileDel ), NULL, this );
 	m_button_download_update->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnUpdate ), NULL, this );
 	m_button_browse_mod_dir_path->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBrowse ), NULL, this );
+	m_choice_Filter->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( MyFrame1::OnFilterChoice ), NULL, this );
+	m_button_log_clear->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnLogClear ), NULL, this );
+	m_button_export->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnLogExport ), NULL, this );
 	m_button6->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnSimulate ), NULL, this );
 	m_button5->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnRun ), NULL, this );
 }
@@ -201,6 +234,9 @@ MyFrame1::~MyFrame1()
 	m_button_profile_delete->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnProfileDel ), NULL, this );
 	m_button_download_update->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnUpdate ), NULL, this );
 	m_button_browse_mod_dir_path->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBrowse ), NULL, this );
+	m_choice_Filter->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( MyFrame1::OnFilterChoice ), NULL, this );
+	m_button_log_clear->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnLogClear ), NULL, this );
+	m_button_export->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnLogExport ), NULL, this );
 	m_button6->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnSimulate ), NULL, this );
 	m_button5->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnRun ), NULL, this );
 

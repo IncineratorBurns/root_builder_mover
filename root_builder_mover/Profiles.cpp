@@ -106,22 +106,24 @@ struct Match
 
 void Profile::Execute(bool a_simulate) const
 {
+	Logger::Instance().Clear();
+
 	if (m_key_vals.at(PROFILE_KEY_PATH).empty())
 	{
-		wxLogMessage("Mod path is empty, can't continue.");
+		PrintInfo("Mod path is empty, can't continue.", "Profile config");
 		return;
 	}
 
 	auto l_modspath = fs::path(m_key_vals.at(PROFILE_KEY_PATH).ToStdWstring());
 	if (!fs::exists(l_modspath))
 	{
-		wxLogMessage("Mods path points to a directory or file that doesn't exist, can't continue.");
+		PrintInfo("Mods path points to a directory or file that doesn't exist, can't continue.", "Profile config");
 		return;
 	}
 
 	if (m_key_vals.at(PROFILE_KEY_DIRS).empty() && m_key_vals.at(PROFILE_KEY_FILES).empty())
 	{
-		wxLogMessage("Dirs and files to move are both empty. Nothing to move.");
+		PrintInfo("Dirs and files to move are both empty. Nothing to move.", "Profile config");
 		return;
 	}
 
@@ -129,7 +131,7 @@ void Profile::Execute(bool a_simulate) const
 	int l_fail_counter = 0;
 
 	if (a_simulate)
-		wxLogMessage("This is a simulation. Nothing will be moved.");
+		PrintInfo("This run is a simulation. No changes will be applied to your system.", META_CORE);
 
 	auto l_file_regexes = Files();
 	auto l_file_exclude_regexes = FilesExclude();
@@ -192,15 +194,15 @@ void Profile::Execute(bool a_simulate) const
 					else if (l_it.is_directory() && fs::is_empty(l_it))
 						l_match.m_empty_dirs.emplace_back(l_it.path());
 
-		// For each detected file path, reconstruct the directory trees relative to the root folder within the mod:
-		if (!l_matches_in_mod.empty())
-		{
-			PrintSeparator();
-			PrintLineSeparator();
-			PrintLog(l_mod_dir.path().filename().wstring(), l_counter);
-			PrintSeparator();
-		}
+		//if (!l_matches_in_mod.empty())
+		//{
+		//	//PrintSeparator();
+		//	//PrintLineSeparator();
+		//	//PrintLog(l_mod_dir.path().filename().wstring(), l_counter);
+		//	//PrintSeparator();
+		//}
 
+		// For each detected file path, reconstruct the directory trees relative to the root folder within the mod:
 		for (auto& l_match : l_matches_in_mod)
 		{
 			for (auto& l_path : l_match.m_files)
@@ -212,13 +214,13 @@ void Profile::Execute(bool a_simulate) const
 				l_new_path /= l_path_starting_with_match_name;
 
 				if (fs::exists(l_new_path))
-					STLFSFuncAndLog(a_simulate, fs::remove_all, FUNC_NAME_REMOVE_ALL, l_counter, l_new_path);
+					STLFSFuncAndLog(a_simulate, fs::remove_all, FUNC_NAME_REMOVE_ALL, l_mod_dir.path().filename().wstring(), l_new_path);
 
-				MoveFileWithSTL(a_simulate, l_counter, l_fail_counter, l_path, l_new_path);
+				MoveFileWithSTL(a_simulate, l_mod_dir.path().filename().wstring(), l_fail_counter, l_path, l_new_path);
 
 				++l_counter;
 
-				PrintSeparator();
+				//PrintSeparator();
 			}
 
 			for (auto& l_path : l_match.m_empty_dirs)
@@ -231,31 +233,31 @@ void Profile::Execute(bool a_simulate) const
 
 				if (fs::exists(l_new_path) && !is_directory(l_new_path))
 				{
-					STLFSFuncAndLog(a_simulate, fs::remove_all, FUNC_NAME_REMOVE_ALL, l_counter, l_new_path);
-					STLFSFuncAndLog(a_simulate, fs::create_directories, FUNC_NAME_CREATE_DIRS, l_counter, l_new_path);
+					STLFSFuncAndLog(a_simulate, fs::remove_all, FUNC_NAME_REMOVE_ALL, l_mod_dir.path().filename().wstring(), l_new_path);
+					STLFSFuncAndLog(a_simulate, fs::create_directories, FUNC_NAME_CREATE_DIRS, l_mod_dir.path().filename().wstring(), l_new_path);
 				}
 				else if (!fs::exists(l_new_path))
-					STLFSFuncAndLog(a_simulate, fs::create_directories, FUNC_NAME_CREATE_DIRS, l_counter, l_new_path);
+					STLFSFuncAndLog(a_simulate, fs::create_directories, FUNC_NAME_CREATE_DIRS, l_mod_dir.path().filename().wstring(), l_new_path);
 
 				++l_counter;
 
-				PrintSeparator();
+				//PrintSeparator();
 			}
 
-			STLFSFuncAndLog(a_simulate, std::filesystem::remove_all, FUNC_NAME_REMOVE_ALL, l_counter,
+			STLFSFuncAndLog(a_simulate, std::filesystem::remove_all, FUNC_NAME_REMOVE_ALL, l_mod_dir.path().filename().wstring(),
 			                l_match.m_path);
-			PrintSeparator();
+			//PrintSeparator();
 		}
 
 		//MoveWithWinAPI(a_simulate, l_counter, l_fail_counter, l_mod_child.path(), l_root_path);
 	}
 
-	wxLogMessage("Errors: %d.", l_fail_counter);
+	PrintInfo(wxString::Format("Errors: %d.", l_fail_counter), META_CORE);
 
 	if (a_simulate)
-		wxLogMessage("This run was a simulation, so nothing has been moved. Click Run to apply these changes.");
+		PrintInfo("This run was a simulation, so nothing has been touched. Click Run to apply these changes.", META_CORE);
 	else
-		wxLogMessage("All done. %s", Message());
+		PrintInfo(wxString::Format("All done. %s", Message()), META_CORE);
 }
 
 bool Profile::IsEmpty() const
