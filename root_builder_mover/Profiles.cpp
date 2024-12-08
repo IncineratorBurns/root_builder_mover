@@ -194,14 +194,6 @@ void Profile::Execute(bool a_simulate) const
 					else if (l_it.is_directory() && fs::is_empty(l_it))
 						l_match.m_empty_dirs.emplace_back(l_it.path());
 
-		//if (!l_matches_in_mod.empty())
-		//{
-		//	//PrintSeparator();
-		//	//PrintLineSeparator();
-		//	//PrintLog(l_mod_dir.path().filename().wstring(), l_counter);
-		//	//PrintSeparator();
-		//}
-
 		// For each detected file path, reconstruct the directory trees relative to the root folder within the mod:
 		for (auto& l_match : l_matches_in_mod)
 		{
@@ -219,8 +211,6 @@ void Profile::Execute(bool a_simulate) const
 				MoveFileWithSTL(a_simulate, l_mod_dir.path().filename().wstring(), l_fail_counter, l_path, l_new_path);
 
 				++l_counter;
-
-				//PrintSeparator();
 			}
 
 			for (auto& l_path : l_match.m_empty_dirs)
@@ -240,13 +230,10 @@ void Profile::Execute(bool a_simulate) const
 					STLFSFuncAndLog(a_simulate, fs::create_directories, FUNC_NAME_CREATE_DIRS, l_mod_dir.path().filename().wstring(), l_new_path);
 
 				++l_counter;
-
-				//PrintSeparator();
 			}
 
 			STLFSFuncAndLog(a_simulate, std::filesystem::remove_all, FUNC_NAME_REMOVE_ALL, l_mod_dir.path().filename().wstring(),
 			                l_match.m_path);
-			//PrintSeparator();
 		}
 
 		//MoveWithWinAPI(a_simulate, l_counter, l_fail_counter, l_mod_child.path(), l_root_path);
