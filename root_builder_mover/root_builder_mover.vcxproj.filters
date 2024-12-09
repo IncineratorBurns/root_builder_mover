@@ -68,6 +68,5 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="bundled.cfg" />
-    <None Include="README.md" />
   </ItemGroup>
 </Project>
