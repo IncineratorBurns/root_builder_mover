@@ -12,8 +12,10 @@ bool PrintLog(const std::error_code& l_ec, const wxString& a_meta, const char* a
 bool PrintLog(const std::error_code& l_ec, const wxString& a_meta, const char* a_func_name, const wxString& a_msg);
 bool PrintInfo(const wxString& a_message, const wxString& a_meta);
 bool PrintError(const wxString& a_message, const wxString& a_meta);
+bool PrintSuccess(const wxString& a_message, const wxString& a_meta);
 
 const char* const META_CORE = "[ CORE ]";
+const char* const META_UPDATER = "[ UPDATER ]";
 
 enum LogItemType
 {

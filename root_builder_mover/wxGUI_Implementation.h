@@ -36,6 +36,9 @@ namespace wxGUI
 		void OnBtnLogClear(wxCommandEvent& event) override;
 		void OnBtnLogExport(wxCommandEvent& event) override;
 		void OnFilterChoice(wxCommandEvent& event) override;
+		void OnBtnSave(wxCommandEvent& event) override;
+
+		void WriteConf(const std::map<wxString, Profile>& a_profiles, const char* a_filename);
 
 	public:
 

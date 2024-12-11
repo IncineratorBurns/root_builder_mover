@@ -26,6 +26,9 @@ MyFrame1::MyFrame1( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	sbSizer1->Add( m_comboBox_Profile, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
+	m_button_save = new wxButton( sbSizer1->GetStaticBox(), wxID_ANY, wxT("Save"), wxDefaultPosition, wxDefaultSize, 0 );
+	sbSizer1->Add( m_button_save, 0, wxALL, 5 );
+
 	m_button_profile_delete = new wxButton( sbSizer1->GetStaticBox(), wxID_ANY, wxT("Delete"), wxDefaultPosition, wxDefaultSize, 0 );
 	sbSizer1->Add( m_button_profile_delete, 0, wxALL, 5 );
 
@@ -46,7 +49,7 @@ MyFrame1::MyFrame1( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	wxBoxSizer* bSizer7;
 	bSizer7 = new wxBoxSizer( wxVERTICAL );
 
-	m_staticText1 = new wxStaticText( sbSizer2->GetStaticBox(), wxID_ANY, wxT("MO profile mod folder:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText1 = new wxStaticText( sbSizer2->GetStaticBox(), wxID_ANY, wxT("MO profile mods folder:"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText1->Wrap( -1 );
 	bSizer7->Add( m_staticText1, 0, wxALL, 5 );
 
@@ -216,6 +219,7 @@ MyFrame1::MyFrame1( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	// Connect Events
 	m_comboBox_Profile->Connect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( MyFrame1::OnProfilesComboItemSelected ), NULL, this );
 	m_comboBox_Profile->Connect( wxEVT_COMBOBOX_DROPDOWN, wxCommandEventHandler( MyFrame1::OnProfilesComboDropDown ), NULL, this );
+	m_button_save->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnSave ), NULL, this );
 	m_button_profile_delete->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnProfileDel ), NULL, this );
 	m_button_download_update->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnUpdate ), NULL, this );
 	m_button_browse_mod_dir_path->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBrowse ), NULL, this );
@@ -231,6 +235,7 @@ MyFrame1::~MyFrame1()
 	// Disconnect Events
 	m_comboBox_Profile->Disconnect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( MyFrame1::OnProfilesComboItemSelected ), NULL, this );
 	m_comboBox_Profile->Disconnect( wxEVT_COMBOBOX_DROPDOWN, wxCommandEventHandler( MyFrame1::OnProfilesComboDropDown ), NULL, this );
+	m_button_save->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnSave ), NULL, this );
 	m_button_profile_delete->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnProfileDel ), NULL, this );
 	m_button_download_update->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnUpdate ), NULL, this );
 	m_button_browse_mod_dir_path->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBrowse ), NULL, this );

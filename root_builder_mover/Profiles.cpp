@@ -117,7 +117,7 @@ void Profile::Execute(bool a_simulate) const
 	auto l_modspath = fs::path(m_key_vals.at(PROFILE_KEY_PATH).ToStdWstring());
 	if (!fs::exists(l_modspath))
 	{
-		PrintInfo("Mods path points to a directory or file that doesn't exist, can't continue.", "Profile config");
+		PrintInfo("Mods path points to something that doesn't exist, can't continue.", "Profile config");
 		return;
 	}
 

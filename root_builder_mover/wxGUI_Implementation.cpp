@@ -17,8 +17,8 @@ namespace fs = std::filesystem;
 #include <wx/filedlg.h>
 
 const wxString CONFIG_APP_GROUP = "root_builder_mover";
-const char* const CONFIG_NAME_BUNDLED = "bundled.cfg";
-const char* const CONFIG_NAME_CUSTOM = "custom.cfg";
+const char* const CONFIG_FILENAME_BUNDLED_CFG = "bundled.cfg";
+const char* const CONFIG_FILENAME_CUSTOM_CFG = "custom.cfg";
 
 const wxString CONFIG_APP_UPDATE_URL = "update_url";
 const wxString CONFIG_PROFILE_VAL_UNSET = "unset";
@@ -169,24 +169,42 @@ void wxGUI::wxGUI::OnBtnUpdate(wxCommandEvent& event)
 	try
 	{
 		wxURL l_url(m_config.at(CONFIG_APP_UPDATE_URL));
-		if (l_url.GetError() == wxURL_NOERR)
-		{
-			//wxString l_htmldata;
-			wxInputStream* l_inputStream = l_url.GetInputStream();
 
-			if (l_inputStream && l_inputStream->IsOk())
-			{
-				//wxStringOutputStream l_outputStream(&l_htmldata);
-				//l_inputStream->Read(l_outputStream);
-				//wxLogMessage(l_htmldata);
-				ReadConfFromStream(ProfilesDB::Instance().m_bundled_profiles, *l_inputStream);
-			}
-			delete l_inputStream;
+		auto l_error = l_url.GetError();
+
+		if (l_error != wxURL_NOERR)
+		{
+			auto l_err_msg = std::array<std::pair<const char*, const char*>, 7>{
+				std::make_pair("wxURL_NOERR", "No error."),
+				std::make_pair("wxURL_SNTXERR", "Syntax error in the URL string."),
+				std::make_pair("wxURL_NOPROTO", "Found no protocol which can get this URL."),
+				std::make_pair("wxURL_NOHOST", "A host name is required for this protocol."),
+				std::make_pair("wxURL_NOPATH", "A path is required for this protocol."),
+				std::make_pair("wxURL_CONNERR", "Connection error."),
+				std::make_pair("wxURL_PROTOERR", "An error occurred during negotiation.")
+			};
+
+			PrintError(wxString::Format("Failed to get the update file. %s (%s)", l_err_msg[l_error].second, l_err_msg[l_error].first),
+			           META_UPDATER);
+			return;
 		}
+
+		//wxString l_htmldata;
+		wxInputStream* l_inputStream = l_url.GetInputStream();
+
+		if (l_inputStream && l_inputStream->IsOk())
+		{
+			//wxStringOutputStream l_outputStream(&l_htmldata);
+			//l_inputStream->Read(l_outputStream);
+			//wxLogMessage(l_htmldata);
+			ReadConfFromStream(ProfilesDB::Instance().m_bundled_profiles, *l_inputStream);
+			WriteConf(ProfilesDB::Instance().m_bundled_profiles, CONFIG_FILENAME_BUNDLED_CFG);
+		}
+		delete l_inputStream;
 	}
 	catch (const std::exception& l_ex)
 	{
-		PrintInfo(l_ex.what(), "Updater");
+		PrintError(l_ex.what(), META_UPDATER);
 	}
 }
 
@@ -210,8 +228,8 @@ wxGUI::wxGUI::wxGUI()
 
 	m_dataViewListCtrl_Log->SetFont(wxFont(8, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 
-	ReadConf(ProfilesDB::Instance().m_bundled_profiles, CONFIG_NAME_BUNDLED);
-	ReadConf(ProfilesDB::Instance().m_custom_profiles, CONFIG_NAME_CUSTOM);
+	ReadConf(ProfilesDB::Instance().m_bundled_profiles, CONFIG_FILENAME_BUNDLED_CFG);
+	ReadConf(ProfilesDB::Instance().m_custom_profiles, CONFIG_FILENAME_CUSTOM_CFG);
 	ProfileListRefresh();
 }
 
@@ -219,25 +237,7 @@ wxGUI::wxGUI::~wxGUI()
 {
 	PossiblySaveCurrentProfile();
 
-	if (fs::exists(CONFIG_NAME_CUSTOM))
-		fs::remove(CONFIG_NAME_CUSTOM);
-
-	wxFileOutputStream l_fileOutputStream(CONFIG_NAME_CUSTOM);
-	if (!l_fileOutputStream.IsOk())
-		wxMessageBox(wxString::Format("Can't save custom profiles. Couldn't open %s for writing.", CONFIG_NAME_CUSTOM));
-	else
-	{
-		wxFileConfig l_custom_profiles_cfg;
-
-		for (const auto& l_profile : ProfilesDB::Instance().m_custom_profiles)
-		{
-			l_custom_profiles_cfg.SetPath(wxString("/") + l_profile.first);
-			for (const auto& l_key_val : l_profile.second.m_key_vals)
-				l_custom_profiles_cfg.Write(l_key_val.first, l_key_val.second);
-		}
-
-		l_custom_profiles_cfg.Save(l_fileOutputStream);
-	}
+	WriteConf(ProfilesDB::Instance().m_custom_profiles, CONFIG_FILENAME_CUSTOM_CFG);
 }
 
 void wxGUI::wxGUI::OnBtnSimulate(wxCommandEvent& event)
@@ -274,6 +274,7 @@ void wxGUI::wxGUI::PossiblySaveCurrentProfile() const
 		l_profile_from_gui.m_name = wxString::Format("Profile %s", wxNow());
 
 	ProfilesDB::Instance().m_custom_profiles[l_profile_from_gui.m_name] = l_profile_from_gui;
+	ProfileListRefresh();
 }
 
 void wxGUI::wxGUI::OnProfilesComboDropDown(wxCommandEvent& event)
@@ -301,21 +302,68 @@ void wxGUI::wxGUI::OnBtnLogExport(wxCommandEvent& event)
 
 	for (const auto& l_item : Logger::Instance().m_all_events)
 		if (Logger::Instance().m_filter == LogItemType::All || Logger::Instance().m_filter == l_item.m_type)
-			l_out.Write(wxString::Format("%d\t%s\t%s\t%s\n\n", l_item.m_sn, l_item.TypeLiteral(), l_item.m_meta, l_item.m_info));
+			l_out.Write(wxString::Format("%d\t%s\t%s\t%s\n\n", l_item.m_sn, l_item.TypeLiteral(), l_item.m_meta,
+			                             l_item.m_info));
 
 	if (l_out.Error())
 	{
-		wxMessageBox(wxString::Format("Couldn't export the log. Last error is %s", wxSysErrorMsgStr(l_out.GetLastError())));
+		PrintError(wxString::Format("Couldn't export the log. Last error is %s",
+			wxSysErrorMsgStr(l_out.GetLastError())), META_CORE);
+
 		l_out.Close();
 	}
 
 	l_out.Close();
 
-	wxMessageBox("Log exported successfully.");
+	PrintSuccess("Log exported successfully", META_CORE);
 }
 
 void wxGUI::wxGUI::OnFilterChoice(wxCommandEvent& event)
 {
 	auto l_choice = m_choice_Filter->GetSelection();
 	Logger::Instance().Filter(static_cast<LogItemType>(l_choice));
+}
+
+void wxGUI::wxGUI::OnBtnSave(wxCommandEvent& event)
+{
+	PossiblySaveCurrentProfile();
+	WriteConf(ProfilesDB::Instance().m_custom_profiles, CONFIG_FILENAME_CUSTOM_CFG);
+}
+
+void wxGUI::wxGUI::WriteConf(const std::map<wxString, Profile>& a_profiles, const char* a_filename)
+{
+	try
+	{
+		if (fs::exists(a_filename))
+			fs::remove(a_filename);
+
+		wxFileOutputStream l_fileOutputStream(a_filename);
+		if (!l_fileOutputStream.IsOk())
+		{
+			PrintError(wxString::Format("Couldn't open %s for writing.", a_filename), META_CORE);
+			wxMessageBox(wxString::Format("Couldn't open %s for writing.", a_filename));
+		}
+		else
+		{
+			wxFileConfig l_profiles_cfg;
+
+			for (const auto& l_profile : a_profiles)
+			{
+				l_profiles_cfg.SetPath(wxString("/") + l_profile.first);
+				for (const auto& l_key_val : l_profile.second.m_key_vals)
+					l_profiles_cfg.Write(l_key_val.first, l_key_val.second);
+			}
+
+			auto l_ret = l_profiles_cfg.Save(l_fileOutputStream);
+			if (l_ret)
+				PrintSuccess(wxString::Format("Saved %s successfully.", a_filename), META_CORE);
+			else
+				PrintError(wxString::Format("Failed saving %s.", a_filename), META_CORE);
+		}
+	}
+	catch (std::exception& l_exception)
+	{
+		PrintError(wxString::Format("WriteConf has failed because %s", l_exception.what()), META_CORE);
+		wxMessageBox(wxString::Format("WriteConf has failed because %s", l_exception.what()));
+	}
 }

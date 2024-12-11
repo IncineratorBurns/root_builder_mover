@@ -71,6 +71,21 @@ bool PrintError(const wxString& a_message, const wxString& a_meta)
 	return true;
 }
 
+bool PrintSuccess(const wxString& a_message, const wxString& a_meta)
+{
+	LogItem l_logItem
+	{
+		Logger::Instance().GetNewSN(),
+		LogItemType::Success,
+		a_meta,
+		wxString::Format("SUC: %s", a_message)
+	};
+
+	Logger::Instance().LogAndNotifyCtrl(l_logItem);
+
+	return true;
+}
+
 wxString LogItem::TypeLiteral() const
 {
 	return g_LogItemTypeStrings[m_type];

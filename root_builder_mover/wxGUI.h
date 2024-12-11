@@ -46,6 +46,7 @@ namespace wxGUI
 
 			protected:
 				wxComboBox* m_comboBox_Profile;
+				wxButton* m_button_save;
 				wxButton* m_button_profile_delete;
 				wxStaticLine* m_staticline1;
 				wxButton* m_button_download_update;
@@ -77,6 +78,7 @@ namespace wxGUI
 				// Virtual event handlers, overide them in your derived class
 				virtual void OnProfilesComboItemSelected( wxCommandEvent& event ) { event.Skip(); }
 				virtual void OnProfilesComboDropDown( wxCommandEvent& event ) { event.Skip(); }
+				virtual void OnBtnSave( wxCommandEvent& event ) { event.Skip(); }
 				virtual void OnBtnProfileDel( wxCommandEvent& event ) { event.Skip(); }
 				virtual void OnBtnUpdate( wxCommandEvent& event ) { event.Skip(); }
 				virtual void OnBrowse( wxCommandEvent& event ) { event.Skip(); }
