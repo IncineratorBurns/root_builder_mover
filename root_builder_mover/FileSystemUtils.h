@@ -23,6 +23,10 @@ bool STLFSFuncAndLog(bool a_simulation, void (*a_stl_fs_function)(const std::fil
                      wxString& a_meta,
                      const std::filesystem::path& a_old_path, const std::filesystem::path& a_new_path);
 
+bool STLFSFuncAndLog(bool a_simulation, bool (*a_stl_fs_function)(const std::filesystem::path& a_old_path, const std::filesystem::path& a_new_path, std::error_code& a_ec), const char* a_func_name, const
+    wxString& a_meta,
+    const std::filesystem::path& a_old_path, const std::filesystem::path& a_new_path);
+
 void MoveFileWithSTL(bool a_simulation, const wxString& a_meta, int& a_fail_counter, const std::filesystem::path& a_old_path,
                      const std::filesystem::path& a_new_path);
 

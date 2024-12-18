@@ -42,6 +42,19 @@ bool STLFSFuncAndLog(bool a_simulation,
 	return PrintLog(l_ec, a_meta, a_func_name, a_old_path.wstring(), a_new_path.wstring());
 }
 
+bool STLFSFuncAndLog(bool a_simulation,
+                     bool (*a_stl_fs_function)(const std::filesystem::path& a_old_path,
+                                               const std::filesystem::path& a_new_path, std::
+                                               error_code& a_ec), const char* a_func_name, const wxString& a_meta,
+                     const std::filesystem::path& a_old_path,
+                     const std::filesystem::path& a_new_path)
+{
+	std::error_code l_ec;
+	if (!a_simulation)
+		a_stl_fs_function(a_old_path, a_new_path, l_ec);
+	return PrintLog(l_ec, a_meta, a_func_name, a_old_path.wstring(), a_new_path.wstring());
+}
+
 void MoveFileWithSTL(bool a_simulation, const wxString& a_meta, int& a_fail_counter,
                      const std::filesystem::path& a_old_path,
                      const std::filesystem::path& a_new_path)
@@ -57,8 +70,8 @@ void MoveFileWithSTL(bool a_simulation, const wxString& a_meta, int& a_fail_coun
 }
 
 std::pair<std::filesystem::path, std::filesystem::path> PartitionPath(const std::filesystem::path& a_path,
-	const wxString& a_token,
-	int a_token_in_first_or_second)
+                                                                      const wxString& a_token,
+                                                                      int a_token_in_first_or_second)
 {
 	auto l_ret = std::make_pair(std::filesystem::path(), std::filesystem::path());
 

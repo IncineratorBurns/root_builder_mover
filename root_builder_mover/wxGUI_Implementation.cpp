@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <wx/msgdlg.h>
 
+#include "FileSystemUtils.h"
 #include "Logging.h"
 #include "MultiLineRenderer.h"
 #include "Profiles.h"
@@ -168,7 +169,7 @@ void wxGUI::wxGUI::OnBtnUpdate(wxCommandEvent& event)
 {
 	try
 	{
-		wxURL l_url(m_config.at(CONFIG_APP_UPDATE_URL));
+		wxURL l_url(m_config[CONFIG_APP_UPDATE_URL]);
 
 		auto l_error = l_url.GetError();
 
@@ -184,7 +185,8 @@ void wxGUI::wxGUI::OnBtnUpdate(wxCommandEvent& event)
 				std::make_pair("wxURL_PROTOERR", "An error occurred during negotiation.")
 			};
 
-			PrintError(wxString::Format("Failed to get the update file. %s (%s)", l_err_msg[l_error].second, l_err_msg[l_error].first),
+			PrintError(wxString::Format("Failed to get the update file. %s (%s)", l_err_msg[l_error].second,
+			                            l_err_msg[l_error].first),
 			           META_UPDATER);
 			return;
 		}
@@ -192,15 +194,128 @@ void wxGUI::wxGUI::OnBtnUpdate(wxCommandEvent& event)
 		//wxString l_htmldata;
 		wxInputStream* l_inputStream = l_url.GetInputStream();
 
-		if (l_inputStream && l_inputStream->IsOk())
+		if (!l_inputStream || !l_inputStream->IsOk())
 		{
-			//wxStringOutputStream l_outputStream(&l_htmldata);
-			//l_inputStream->Read(l_outputStream);
-			//wxLogMessage(l_htmldata);
-			ReadConfFromStream(ProfilesDB::Instance().m_bundled_profiles, *l_inputStream);
-			WriteConf(ProfilesDB::Instance().m_bundled_profiles, CONFIG_FILENAME_BUNDLED_CFG);
+			PrintError("Can't proceed with bundled.cfg update as the updated file couldn't be downloaded.",
+			           META_UPDATER);
+			return;
 		}
+
+		// Read downloaded file from the input stream into a string:
+		auto l_new_data = Utils::Read(*l_inputStream);
+
+		if (l_new_data.empty())
+		{
+			PrintError(
+				"Can't proceed with bundled.cfg update as reading data from input stream associated with the file over the URL has resulted in an empty string.",
+				META_UPDATER);
+			return;
+		}
+
+		// backup old bundled.cfg:
+		auto l_path_bundled_cfg = std::filesystem::path(CONFIG_FILENAME_BUNDLED_CFG);
+		auto l_path_bundled_cfg_bak = l_path_bundled_cfg;
+		l_path_bundled_cfg_bak += ".bak";
+
+		auto lf_delete_backup = [&l_path_bundled_cfg_bak]()
+			{
+				auto l_ret = true;
+
+				if (std::filesystem::exists(l_path_bundled_cfg_bak))
+					l_ret = STLFSFuncAndLog(false, std::filesystem::remove, "std::remove", META_UPDATER,
+						l_path_bundled_cfg_bak);
+
+				return l_ret;
+			};
+
+		if (std::filesystem::exists(l_path_bundled_cfg))
+		{
+			bool l_success = false;
+
+			// remove the old bak:
+			l_success = lf_delete_backup();
+
+			// copy the cfg to bak:
+			if (l_success)
+				l_success = STLFSFuncAndLog(false, std::filesystem::copy_file, "std::copy_file", META_UPDATER,
+				                            l_path_bundled_cfg, l_path_bundled_cfg_bak);
+
+			if (!l_success)
+			{
+				PrintError("Can't proceed with bundled.cfg update as making a backup failed.", META_UPDATER);
+				lf_delete_backup();
+				return;
+			}
+		}
+
+		auto lf_restore_backup = [&l_path_bundled_cfg, &l_path_bundled_cfg_bak]()
+		{
+			bool l_success = true;
+
+			if (std::filesystem::exists(l_path_bundled_cfg_bak))
+			{
+				// remove the active cfg:
+				if (std::filesystem::exists(l_path_bundled_cfg))
+					l_success = STLFSFuncAndLog(false, std::filesystem::remove, "std::remove", META_UPDATER,
+						l_path_bundled_cfg);
+
+				// copy the bak to cfg:
+				if (l_success)
+					l_success = STLFSFuncAndLog(false, std::filesystem::copy_file, "std::copy_file", META_UPDATER,
+					                            l_path_bundled_cfg_bak, l_path_bundled_cfg);
+
+				if (l_success)
+					l_success = STLFSFuncAndLog(false, std::filesystem::remove, "std::remove", META_UPDATER,
+						l_path_bundled_cfg_bak);
+
+				if (!l_success)
+					PrintError("Restoring a backup bundled.cfg failed during the update for some reason. Please try again, or if nothing helps download the file from https://raw.githubusercontent.com/IncineratorBurns/root_builder_mover/refs/heads/master/root_builder_mover/bundled.cfg and save it into the folder where this .exe is located.\nAlso, remember that keeping game-related stuff in Program Files might cause issues related to access and ownership of files on modern systems. Keep them outside, like in D:\\Games.", META_UPDATER);
+			}
+
+			return l_success;
+		};
+
+		// Open file for writing, associate an output stream with it:
+		wxFile l_out_file(l_path_bundled_cfg.wstring(), wxFile::OpenMode::write);
+		if (!l_out_file.IsOpened())
+		{
+			PrintError("Can't proceed with bundled.cfg update as bundled.cfg can't be open for writing.", META_UPDATER);
+			return;
+		}
+		wxFileOutputStream l_outputStream(l_out_file);
+		if (!l_outputStream.IsOk())
+		{
+			PrintError("Can't proceed with bundled.cfg update as bundled.cfg can't be open for output streaming.",
+			           META_UPDATER);
+			return;
+		}
+
+		// Try writing new data into it:
+		auto l_result = l_outputStream.WriteAll((const void*)&l_new_data[0], l_new_data.size());
+
+		if (!l_result)
+		{
+			auto l_bytes_written = l_outputStream.LastWrite();
+			PrintError(wxString::Format(
+				           "Error during the update. The updated data length is %d bytes, but bytes written is only %d. The update is rolled back.",
+				           l_new_data.size(), l_bytes_written), META_UPDATER);
+
+			delete l_inputStream;
+			l_outputStream.Close();
+			l_out_file.Close();
+			// Restore backup:
+			lf_restore_backup();
+			return;
+		}
+
 		delete l_inputStream;
+		l_outputStream.Close();
+		l_out_file.Close();
+		lf_delete_backup();
+		ReadConf(ProfilesDB::Instance().m_bundled_profiles, CONFIG_FILENAME_BUNDLED_CFG);
+		ProfileListRefresh();
+		PrintSuccess("Updated bundled.cfg successfully. Config has been reloaded.", META_UPDATER);
+		
 	}
 	catch (const std::exception& l_ex)
 	{
@@ -308,7 +423,7 @@ void wxGUI::wxGUI::OnBtnLogExport(wxCommandEvent& event)
 	if (l_out.Error())
 	{
 		PrintError(wxString::Format("Couldn't export the log. Last error is %s",
-			wxSysErrorMsgStr(l_out.GetLastError())), META_CORE);
+		                            wxSysErrorMsgStr(l_out.GetLastError())), META_CORE);
 
 		l_out.Close();
 	}
