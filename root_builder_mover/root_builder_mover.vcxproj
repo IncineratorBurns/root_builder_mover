@@ -128,6 +128,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DialogUpdate.cpp" />
     <ClCompile Include="FileSystemUtils.cpp" />
     <ClCompile Include="Logging.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -135,9 +136,11 @@
     <ClCompile Include="Profiles.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="wxGUI.cpp" />
-    <ClCompile Include="wxGUI_Implementation.cpp" />
+    <ClCompile Include="MainFrame.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Config.h" />
+    <ClInclude Include="DialogUpdate.h" />
     <ClInclude Include="FileSystemUtils.h" />
     <ClInclude Include="Logging.h" />
     <ClInclude Include="Main.h" />
@@ -145,7 +148,7 @@
     <ClInclude Include="Profiles.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="wxGUI.h" />
-    <ClInclude Include="wxGUI_Implementation.h" />
+    <ClInclude Include="MainFrame.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />

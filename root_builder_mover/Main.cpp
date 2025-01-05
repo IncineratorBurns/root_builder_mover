@@ -1,9 +1,9 @@
 #include "Main.h"
-#include "wxGUI_Implementation.h"
+#include "MainFrame.h"
 
 bool MyApp::OnInit()
 {
-	auto* l_frame = new wxGUI::wxGUI();
+	auto* l_frame = new wxGUI::MainFrame();
 	l_frame->Show();
 
 	return true;

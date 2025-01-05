@@ -206,9 +206,9 @@ void Profile::Execute(bool a_simulate) const
 				l_new_path /= l_path_starting_with_match_name;
 
 				if (fs::exists(l_new_path))
-					STLFSFuncAndLog(a_simulate, fs::remove_all, FUNC_NAME_REMOVE_ALL, l_mod_dir.path().filename().wstring(), l_new_path);
+					STLFSFuncAndLog(true, a_simulate, fs::remove_all, FUNC_NAME_REMOVE_ALL, l_mod_dir.path().filename().wstring(), l_new_path);
 
-				MoveFileWithSTL(a_simulate, l_mod_dir.path().filename().wstring(), l_fail_counter, l_path, l_new_path);
+				MoveFileWithSTL(true, a_simulate, l_mod_dir.path().filename().wstring(), l_fail_counter, l_path, l_new_path);
 
 				++l_counter;
 			}
@@ -223,16 +223,16 @@ void Profile::Execute(bool a_simulate) const
 
 				if (fs::exists(l_new_path) && !is_directory(l_new_path))
 				{
-					STLFSFuncAndLog(a_simulate, fs::remove_all, FUNC_NAME_REMOVE_ALL, l_mod_dir.path().filename().wstring(), l_new_path);
-					STLFSFuncAndLog(a_simulate, fs::create_directories, FUNC_NAME_CREATE_DIRS, l_mod_dir.path().filename().wstring(), l_new_path);
+					STLFSFuncAndLog(true, a_simulate, fs::remove_all, FUNC_NAME_REMOVE_ALL, l_mod_dir.path().filename().wstring(), l_new_path);
+					STLFSFuncAndLog(true, a_simulate, fs::create_directories, FUNC_NAME_CREATE_DIRS, l_mod_dir.path().filename().wstring(), l_new_path);
 				}
 				else if (!fs::exists(l_new_path))
-					STLFSFuncAndLog(a_simulate, fs::create_directories, FUNC_NAME_CREATE_DIRS, l_mod_dir.path().filename().wstring(), l_new_path);
+					STLFSFuncAndLog(true, a_simulate, fs::create_directories, FUNC_NAME_CREATE_DIRS, l_mod_dir.path().filename().wstring(), l_new_path);
 
 				++l_counter;
 			}
 
-			STLFSFuncAndLog(a_simulate, std::filesystem::remove_all, FUNC_NAME_REMOVE_ALL, l_mod_dir.path().filename().wstring(),
+			STLFSFuncAndLog(true, a_simulate, std::filesystem::remove_all, FUNC_NAME_REMOVE_ALL, l_mod_dir.path().filename().wstring(),
 			                l_match.m_path);
 		}
 

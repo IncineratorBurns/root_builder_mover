@@ -6,7 +6,7 @@
 #include <wx/dataview.h>
 #include <wx/log.h>
 
-bool PrintLog(const std::error_code& l_ec, const wxString& a_meta, const char* a_func_name, const wxString& a_msg1,
+void PrintLog(const std::error_code& l_ec, const wxString& a_meta, const char* a_func_name, const wxString& a_msg1,
               const wxString& a_msg2)
 {
 	LogItem l_logItem
@@ -20,11 +20,9 @@ bool PrintLog(const std::error_code& l_ec, const wxString& a_meta, const char* a
 	};
 
 	Logger::Instance().LogAndNotifyCtrl(l_logItem);
-
-	return l_ec.value() == 0;
 }
 
-bool PrintLog(const std::error_code& l_ec, const wxString& a_meta, const char* a_func_name, const wxString& a_msg)
+void PrintLog(const std::error_code& l_ec, const wxString& a_meta, const char* a_func_name, const wxString& a_msg)
 {
 	LogItem l_logItem
 	{
@@ -37,11 +35,9 @@ bool PrintLog(const std::error_code& l_ec, const wxString& a_meta, const char* a
 	};
 
 	Logger::Instance().LogAndNotifyCtrl(l_logItem);
-
-	return l_ec.value() == 0;
 }
 
-bool PrintInfo(const wxString& a_message, const wxString& a_meta)
+void PrintInfo(const wxString& a_message, const wxString& a_meta)
 {
 	LogItem l_logItem
 	{
@@ -52,11 +48,9 @@ bool PrintInfo(const wxString& a_message, const wxString& a_meta)
 	};
 
 	Logger::Instance().LogAndNotifyCtrl(l_logItem);
-
-	return true;
 }
 
-bool PrintError(const wxString& a_message, const wxString& a_meta)
+void PrintError(const wxString& a_message, const wxString& a_meta)
 {
 	LogItem l_logItem
 	{
@@ -67,11 +61,9 @@ bool PrintError(const wxString& a_message, const wxString& a_meta)
 	};
 
 	Logger::Instance().LogAndNotifyCtrl(l_logItem);
-
-	return true;
 }
 
-bool PrintSuccess(const wxString& a_message, const wxString& a_meta)
+void PrintSuccess(const wxString& a_message, const wxString& a_meta)
 {
 	LogItem l_logItem
 	{
@@ -82,8 +74,6 @@ bool PrintSuccess(const wxString& a_message, const wxString& a_meta)
 	};
 
 	Logger::Instance().LogAndNotifyCtrl(l_logItem);
-
-	return true;
 }
 
 wxString LogItem::TypeLiteral() const

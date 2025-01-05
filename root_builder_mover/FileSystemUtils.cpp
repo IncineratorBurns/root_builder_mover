@@ -9,7 +9,7 @@
 
 // STL
 
-bool STLFSFuncAndLog(bool a_simulation,
+bool STLFSFuncAndLog(bool a_print_on_success, bool a_simulation,
                      bool (*a_stl_fs_function)(const std::filesystem::path& a_path, std::error_code& a_ec),
                      const char* a_func_name,
                      const wxString& a_meta, const std::filesystem::path& a_path)
@@ -17,20 +17,24 @@ bool STLFSFuncAndLog(bool a_simulation,
 	std::error_code l_ec;
 	if (!a_simulation)
 		a_stl_fs_function(a_path, l_ec);
-	return PrintLog(l_ec, a_meta, a_func_name, a_path.wstring());
+	if (l_ec.value() != 0 || (a_print_on_success && l_ec.value() == 0))
+		PrintLog(l_ec, a_meta, a_func_name, a_path.wstring());
+	return l_ec.value() == 0;
 }
 
-bool STLFSFuncAndLog(bool a_simulation,
+bool STLFSFuncAndLog(bool a_print_on_success, bool a_simulation,
                      std::uintmax_t (*a_stl_fs_function)(const std::filesystem::path& a_path, std::error_code& a_ec),
                      const char* a_func_name, const wxString& a_meta, const std::filesystem::path& a_path)
 {
 	std::error_code l_ec;
 	if (!a_simulation)
 		a_stl_fs_function(a_path, l_ec);
-	return PrintLog(l_ec, a_meta, a_func_name, a_path.wstring());
+	if (l_ec.value() != 0 || (a_print_on_success && l_ec.value() == 0))
+		PrintLog(l_ec, a_meta, a_func_name, a_path.wstring());
+	return l_ec.value() == 0;
 }
 
-bool STLFSFuncAndLog(bool a_simulation,
+bool STLFSFuncAndLog(bool a_print_on_success, bool a_simulation,
                      void (*a_stl_fs_function)(const std::filesystem::path& a_old_path,
                                                const std::filesystem::path& a_new_path, std::error_code& a_ec),
                      const char* a_func_name, const wxString& a_meta, const std::filesystem::path& a_old_path,
@@ -39,10 +43,12 @@ bool STLFSFuncAndLog(bool a_simulation,
 	std::error_code l_ec;
 	if (!a_simulation)
 		a_stl_fs_function(a_old_path, a_new_path, l_ec);
-	return PrintLog(l_ec, a_meta, a_func_name, a_old_path.wstring(), a_new_path.wstring());
+	if (l_ec.value() != 0 || (a_print_on_success && l_ec.value() == 0))
+		PrintLog(l_ec, a_meta, a_func_name, a_old_path.wstring(), a_new_path.wstring());
+	return l_ec.value() == 0;
 }
 
-bool STLFSFuncAndLog(bool a_simulation,
+bool STLFSFuncAndLog(bool a_print_on_success, bool a_simulation,
                      bool (*a_stl_fs_function)(const std::filesystem::path& a_old_path,
                                                const std::filesystem::path& a_new_path, std::
                                                error_code& a_ec), const char* a_func_name, const wxString& a_meta,
@@ -52,19 +58,21 @@ bool STLFSFuncAndLog(bool a_simulation,
 	std::error_code l_ec;
 	if (!a_simulation)
 		a_stl_fs_function(a_old_path, a_new_path, l_ec);
-	return PrintLog(l_ec, a_meta, a_func_name, a_old_path.wstring(), a_new_path.wstring());
+	if (l_ec.value() != 0 || (a_print_on_success && l_ec.value() == 0))
+		PrintLog(l_ec, a_meta, a_func_name, a_old_path.wstring(), a_new_path.wstring());
+	return l_ec.value() == 0;
 }
 
-void MoveFileWithSTL(bool a_simulation, const wxString& a_meta, int& a_fail_counter,
+void MoveFileWithSTL(bool a_print_on_success, bool a_simulation, const wxString& a_meta, int& a_fail_counter,
                      const std::filesystem::path& a_old_path,
                      const std::filesystem::path& a_new_path)
 {
 	auto l_new_file_parent = a_new_path.parent_path();
 	if (!std::filesystem::exists(l_new_file_parent))
-		STLFSFuncAndLog(a_simulation, std::filesystem::create_directories, FUNC_NAME_CREATE_DIRS, a_meta,
+		STLFSFuncAndLog(a_print_on_success, a_simulation, std::filesystem::create_directories, FUNC_NAME_CREATE_DIRS, a_meta,
 		                l_new_file_parent);
 
-	if (!STLFSFuncAndLog(a_simulation, std::filesystem::rename, FUNC_NAME_RENAME, a_meta, a_old_path,
+	if (!STLFSFuncAndLog(a_print_on_success, a_simulation, std::filesystem::rename, FUNC_NAME_RENAME, a_meta, a_old_path,
 	                     a_new_path))
 		++a_fail_counter;
 }
@@ -110,7 +118,7 @@ std::wstring WinAPIPath(const std::filesystem::path& a_path)
 	return l_ret.wstring();
 }
 
-void MoveWithWinAPI(bool a_simulate, int l_counter, int& l_fail_counter, const std::filesystem::path& l_mod_child,
+void MoveWithWinAPI(bool a_print_on_success, bool a_simulate, int l_counter, int& l_fail_counter, const std::filesystem::path& l_mod_child,
                     const std::filesystem::path& l_root_path)
 {
 	wxLogMessage("( %d ) SRC: %s", l_counter, l_mod_child.wstring());

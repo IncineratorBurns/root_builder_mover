@@ -1,27 +1,34 @@
 #pragma once
 
 #include <map>
+//#include <wx/webrequest.h
+#include <thread>
 
 #include "Profiles.h"
 #include "wxGUI.h"
 
+class wxMessageDialog;
 class wxLog;
+
+void SetConfig(std::map<wxString, wxString>& a_dst, const wxVector<std::pair<wxString, wxString>>& a_key_vals);
+void ReadConfFromStream(std::map<wxString, wxString>* a_gconf_dst, std::map<wxString, Profile>& a_profiles_dst, wxInputStream& a_src);
+void ReadConf(std::map<wxString, Profile>& a_dst, const wxString& a_conf_filename);
 
 namespace wxGUI
 {
-	class wxGUI : public Generated::MyFrame1
+	class DialogUpdate;
+
+	class MainFrame : public Generated::MainFrame_Base
 	{
-		std::map<wxString, wxString> m_config;
+		std::thread* m_update_thread = nullptr;
+		void delete_update_thread();
+		DialogUpdate* m_p_dialog_update = nullptr;
 
-		wxLog* m_logger;
-
-		void SetConfig(const wxVector<std::pair<wxString, wxString>>& a_key_vals);
-
-		void ReadConfFromStream(std::map<wxString, Profile>& a_dst, wxInputStream& a_src);
-		void ReadConf(std::map<wxString, Profile>& a_dst, const wxString& a_conf_filename);
 		void SelectProfile(const wxString& a_name, bool a_setProfileComboVal) const;
 		void ProfileListRefresh() const;
 		Profile ProfileFromGUI() const;
+
+		void OnThreadEvent(wxThreadEvent& a_event);
 
 	protected:
 
@@ -42,7 +49,7 @@ namespace wxGUI
 
 	public:
 
-		wxGUI();
-		~wxGUI();
+		MainFrame();
+		~MainFrame();
 	};
 }

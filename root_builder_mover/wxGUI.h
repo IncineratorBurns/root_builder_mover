@@ -29,6 +29,7 @@
 #include <wx/dataview.h>
 #include <wx/hyperlink.h>
 #include <wx/frame.h>
+#include <wx/dialog.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -38,9 +39,9 @@ namespace wxGUI
 	{
 
 		///////////////////////////////////////////////////////////////////////////////
-		/// Class MyFrame1
+		/// Class MainFrame_Base
 		///////////////////////////////////////////////////////////////////////////////
-		class MyFrame1 : public wxFrame
+		class MainFrame_Base : public wxFrame
 		{
 			private:
 
@@ -92,9 +93,31 @@ namespace wxGUI
 			public:
 				wxString m_profile_combobox_value;
 
-				MyFrame1( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Mover for the Root Builder"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 959,838 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
+				MainFrame_Base( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Mover for the Root Builder"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 959,838 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
 
-				~MyFrame1();
+				~MainFrame_Base();
+
+		};
+
+		///////////////////////////////////////////////////////////////////////////////
+		/// Class DialogUpdate_Base
+		///////////////////////////////////////////////////////////////////////////////
+		class DialogUpdate_Base : public wxDialog
+		{
+			private:
+
+			protected:
+				wxStaticText* m_staticText8;
+				wxButton* m_buttonCancel;
+
+				// Virtual event handlers, overide them in your derived class
+				virtual void OnBtnCancel( wxCommandEvent& event ) { event.Skip(); }
+
+
+			public:
+
+				DialogUpdate_Base( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 334,119 ), long style = 0 );
+				~DialogUpdate_Base();
 
 		};
 

@@ -10,7 +10,7 @@
 ///////////////////////////////////////////////////////////////////////////
 using namespace wxGUI::Generated;
 
-MyFrame1::MyFrame1( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style )
+MainFrame_Base::MainFrame_Base( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style )
 {
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 	this->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_INACTIVEBORDER ) );
@@ -217,32 +217,83 @@ MyFrame1::MyFrame1( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	this->Centre( wxBOTH );
 
 	// Connect Events
-	m_comboBox_Profile->Connect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( MyFrame1::OnProfilesComboItemSelected ), NULL, this );
-	m_comboBox_Profile->Connect( wxEVT_COMBOBOX_DROPDOWN, wxCommandEventHandler( MyFrame1::OnProfilesComboDropDown ), NULL, this );
-	m_button_save->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnSave ), NULL, this );
-	m_button_profile_delete->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnProfileDel ), NULL, this );
-	m_button_download_update->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnUpdate ), NULL, this );
-	m_button_browse_mod_dir_path->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBrowse ), NULL, this );
-	m_choice_Filter->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( MyFrame1::OnFilterChoice ), NULL, this );
-	m_button_log_clear->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnLogClear ), NULL, this );
-	m_button_export->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnLogExport ), NULL, this );
-	m_button6->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnSimulate ), NULL, this );
-	m_button5->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnRun ), NULL, this );
+	m_comboBox_Profile->Connect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( MainFrame_Base::OnProfilesComboItemSelected ), NULL, this );
+	m_comboBox_Profile->Connect( wxEVT_COMBOBOX_DROPDOWN, wxCommandEventHandler( MainFrame_Base::OnProfilesComboDropDown ), NULL, this );
+	m_button_save->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MainFrame_Base::OnBtnSave ), NULL, this );
+	m_button_profile_delete->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MainFrame_Base::OnBtnProfileDel ), NULL, this );
+	m_button_download_update->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MainFrame_Base::OnBtnUpdate ), NULL, this );
+	m_button_browse_mod_dir_path->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MainFrame_Base::OnBrowse ), NULL, this );
+	m_choice_Filter->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( MainFrame_Base::OnFilterChoice ), NULL, this );
+	m_button_log_clear->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MainFrame_Base::OnBtnLogClear ), NULL, this );
+	m_button_export->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MainFrame_Base::OnBtnLogExport ), NULL, this );
+	m_button6->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MainFrame_Base::OnBtnSimulate ), NULL, this );
+	m_button5->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MainFrame_Base::OnBtnRun ), NULL, this );
 }
 
-MyFrame1::~MyFrame1()
+MainFrame_Base::~MainFrame_Base()
 {
 	// Disconnect Events
-	m_comboBox_Profile->Disconnect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( MyFrame1::OnProfilesComboItemSelected ), NULL, this );
-	m_comboBox_Profile->Disconnect( wxEVT_COMBOBOX_DROPDOWN, wxCommandEventHandler( MyFrame1::OnProfilesComboDropDown ), NULL, this );
-	m_button_save->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnSave ), NULL, this );
-	m_button_profile_delete->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnProfileDel ), NULL, this );
-	m_button_download_update->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnUpdate ), NULL, this );
-	m_button_browse_mod_dir_path->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBrowse ), NULL, this );
-	m_choice_Filter->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( MyFrame1::OnFilterChoice ), NULL, this );
-	m_button_log_clear->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnLogClear ), NULL, this );
-	m_button_export->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnLogExport ), NULL, this );
-	m_button6->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnSimulate ), NULL, this );
-	m_button5->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MyFrame1::OnBtnRun ), NULL, this );
+	m_comboBox_Profile->Disconnect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( MainFrame_Base::OnProfilesComboItemSelected ), NULL, this );
+	m_comboBox_Profile->Disconnect( wxEVT_COMBOBOX_DROPDOWN, wxCommandEventHandler( MainFrame_Base::OnProfilesComboDropDown ), NULL, this );
+	m_button_save->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MainFrame_Base::OnBtnSave ), NULL, this );
+	m_button_profile_delete->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MainFrame_Base::OnBtnProfileDel ), NULL, this );
+	m_button_download_update->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MainFrame_Base::OnBtnUpdate ), NULL, this );
+	m_button_browse_mod_dir_path->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MainFrame_Base::OnBrowse ), NULL, this );
+	m_choice_Filter->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( MainFrame_Base::OnFilterChoice ), NULL, this );
+	m_button_log_clear->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MainFrame_Base::OnBtnLogClear ), NULL, this );
+	m_button_export->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MainFrame_Base::OnBtnLogExport ), NULL, this );
+	m_button6->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MainFrame_Base::OnBtnSimulate ), NULL, this );
+	m_button5->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MainFrame_Base::OnBtnRun ), NULL, this );
+
+}
+
+DialogUpdate_Base::DialogUpdate_Base( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+
+	wxBoxSizer* bSizer13;
+	bSizer13 = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* bSizer14;
+	bSizer14 = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* bSizer15;
+	bSizer15 = new wxBoxSizer( wxHORIZONTAL );
+
+	m_staticText8 = new wxStaticText( this, wxID_ANY, wxT("Updating, please wait..."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText8->Wrap( -1 );
+	m_staticText8->SetFont( wxFont( 12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Arial") ) );
+
+	bSizer15->Add( m_staticText8, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	bSizer14->Add( bSizer15, 1, wxALIGN_CENTER_HORIZONTAL, 5 );
+
+	wxBoxSizer* bSizer16;
+	bSizer16 = new wxBoxSizer( wxHORIZONTAL );
+
+	m_buttonCancel = new wxButton( this, wxID_ANY, wxT("Cancel"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer16->Add( m_buttonCancel, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+
+	bSizer14->Add( bSizer16, 1, wxALIGN_CENTER_HORIZONTAL, 5 );
+
+
+	bSizer13->Add( bSizer14, 1, wxEXPAND, 5 );
+
+
+	this->SetSizer( bSizer13 );
+	this->Layout();
+
+	this->Centre( wxBOTH );
+
+	// Connect Events
+	m_buttonCancel->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DialogUpdate_Base::OnBtnCancel ), NULL, this );
+}
+
+DialogUpdate_Base::~DialogUpdate_Base()
+{
+	// Disconnect Events
+	m_buttonCancel->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( DialogUpdate_Base::OnBtnCancel ), NULL, this );
 
 }
