@@ -11,9 +11,9 @@ This is a GUI tool that supplements Mod Organizer's `root_builder` plugin. It au
 
 ## Installation Instructions
 
-Download the latest release.
-Unpack in a folder on your system.
-Note: don't unpack game tools or install games in general into Program Files, because it's a special folder in Windows and opertaing on files within it requires administrator's rights.
+- Download the latest release.
+- Unpack in a folder on your system.
+- Note: don't unpack game tools or install games in general into Program Files, because it's a special folder in Windows and opertaing on files within it requires administrator's rights.
 
 ## Configuration
 
