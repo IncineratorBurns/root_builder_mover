@@ -1,29 +1,71 @@
-This is a GUI tool to suppliment Mod Organizer's root_builder plugin.
-It moves files and folders that belong in the "root" folder into the "root" folder of every mod that is detected to require such actions, creating such a directory if it is required and is missing.
+# Root Builder Mover Tool for Mod Organizer's root_builder plugin
 
-The tool supports game profiles and some config, all done in GUI. Profiles for Cyberpunk 2077, Skyrim and Fallout are provided. All you'll need to do is to set the path to the "mods" folder in your Mod Organizer's profile folder for the respective game.
+This is a GUI tool that supplements Mod Organizer's `root_builder` plugin. It automates the process of moving files and folders that belong in the "root" folder into the "root" folder of every mod that is detected to require such actions. The tool will create a directory if it is required and missing.
 
-Have fun.
+## Features
+
+- Doesn't have any specific requirements. Supports anything. Profiles for **Cyberpunk 2077**, **Skyrim**, and **Fallout** are bundled in.
+- Simple configuration through an intuitive GUI.
+- Automatically detects and organizes files into the correct mod directories.
+- Simulation run shows what actions would be undertaken without actually touching your files.
+
+## Installation Instructions
+
+Download the latest release.
+Unpack in a folder on your system.
+Note: don't unpack game tools or install games in general into Program Files, because it's a special folder in Windows and opertaing on files within it requires administrator's rights.
+
+## Configuration
+
+### General Information
+
+- Configuration fields (except for the mods directory path) use **PCRE regular expressions** delimited with `||`.
+
+### Regular Expression Examples
+
+- To match the exact string "engine": 
+
+^engine$
+
+- To match either "engine" or "r6": 
+
+^engine$||^r6$
+
+- To match any string ending with ".exe": 
+
+.*\\.exe$
 
 
-Configuration:
+### Special Characters
 
-All the configuration fields, except the mods dir path, are PCRE regular expressions delimited with ||.
+Here are some magic characters and their meanings in PCRE:
 
-Some examples of trivial but sufficient PCRE (excluding quotes):
-To match "engine", write "^engine$".
-To match "engine" and "r6", write "^engine$||^r6$".
-To match something ending with ".exe", write ".*\.exe$".
+- **`^`** - Matches the beginning of a string.
+- **`$`** - Matches the end of a string.
+- **`.`** (dot) - Matches any single character.
+- **`*`** (star) - Matches zero or more occurrences of the preceding character.
+- To match literal characters `.` or `*`, precede them with a backslash `\` (the escape character), like so:
+  - `\.`, `\*`.
 
-And those magic characters are:
-"^" - beginning of a string you're trying to match.
-"$" - end of said string.
-"." (dot) - matches any character.
-"*" (star) - this is a multiplier symbol. Use it after whatever symbol, like so: ".*" - matches any number of any characters.
-To match "." or "*" (actual characters themselves), preceed them with an "\" (it's called an escape character), like so: "\." or "\*" (and these are the escape sequences).
+### Profiles
 
-That's about everything you need to know to configure the app.
+The app comes with several pre-configured profiles ready for use. You can base your new profile on the existing ones for easy customization.
+- To base your profile off a bundled one, select a profile and modify it however you want.
+- You can use the same name for your profile if you want to.
+- Your profiles are saved into the **custom.cfg** file next to the tool's exe file. Profiles with the same name in custom.cfg are loaded over the bundled ones.
 
-Like it's said above, the app comes with several profiles ready to use. You can base your new profile off them. To do that just pick a profile and modify it however you want in the app. The app will save it in custom.cfg. You can use the same name for the profile, the app will save it in custom.cfg and load it "above" a bundled one of the same name.
+## Usage
 
-The app has a feature to update the bundled.cfg shall the need ever arise.
+- Open the tool and select the desired game profile.
+- Configure the settings as necessary.
+  - The **mods path** directory should point to the **mods** dir in your Mod Organizer's profile dir for the respective game.
+- (Optional, but recommended, especially when configuring a new profile) Click the **Simulate** button to see what actions would an actual Run execute.
+- Click the **Run** button to execute the file organization.
+
+## Conclusion
+
+That's about everything you need to know to configure and utilize the application effectively. Enjoy using the tool and have fun modding!
+
+## Contact
+
+For issues, questions, or contributions, please open an issue on the repository or contact the developer.
