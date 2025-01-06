@@ -1,28 +1,27 @@
 #include "MainFrame.h"
 
 #include <filesystem>
+namespace fs = std::filesystem;
 #include <wx/app.h>
 #include <wx/msgdlg.h>
-
-#include "Config.h"
-#include "DialogUpdate.h"
-#include "FileSystemUtils.h"
-#include "Logging.h"
-#include "MultiLineRenderer.h"
-#include "Profiles.h"
-#include "Utils.h"
-namespace fs = std::filesystem;
-
 #include <wx/wfstream.h>
 #include <wx/fileconf.h>
 #include <wx/dirdlg.h>
 #include <wx/url.h>
 #include <wx/log.h>
 #include <wx/filedlg.h>
-#include <wx/progdlg.h>
+#include <wx/mstream.h>
+#include "MultiLineRenderer.h"
+#include "DialogUpdate.h"
+#include "Logging.h"
+
+#include "Config.h"
+#include "FileSystemUtils.h"
+#include "Utils.h"
+#include "Profiles.h"
+
 #include <curl/curl.h>
 #include <curl/multi.h>
-#include <wx/mstream.h>
 
 const wxString CONFIG_APP_GROUP = "root_builder_mover";
 const char* const CONFIG_FILENAME_BUNDLED_CFG = "bundled.cfg";
@@ -526,6 +525,8 @@ wxGUI::MainFrame::MainFrame()
 	//m_logger = new wxLogTextCtrl(m_textCtrl_log);
 	//m_logger->SetActiveTarget(m_logger);
 	//LoggerCtrl::Instance(m_richText_Log);
+
+	SetIcon(wxICON(AAAICON));
 
 	Logger::Instance(m_dataViewListCtrl_Log);
 

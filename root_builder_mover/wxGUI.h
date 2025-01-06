@@ -93,7 +93,7 @@ namespace wxGUI
 			public:
 				wxString m_profile_combobox_value;
 
-				MainFrame_Base( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Mover for the Root Builder"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 959,838 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
+				MainFrame_Base( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Root Builder Mover"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 959,838 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
 
 				~MainFrame_Base();
 

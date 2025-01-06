@@ -49,7 +49,7 @@ MainFrame_Base::MainFrame_Base( wxWindow* parent, wxWindowID id, const wxString&
 	wxBoxSizer* bSizer7;
 	bSizer7 = new wxBoxSizer( wxVERTICAL );
 
-	m_staticText1 = new wxStaticText( sbSizer2->GetStaticBox(), wxID_ANY, wxT("MO profile mods folder:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText1 = new wxStaticText( sbSizer2->GetStaticBox(), wxID_ANY, wxT("MO game profile Mods folder:"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText1->Wrap( -1 );
 	bSizer7->Add( m_staticText1, 0, wxALL, 5 );
 
@@ -79,7 +79,7 @@ MainFrame_Base::MainFrame_Base( wxWindow* parent, wxWindowID id, const wxString&
 	bSizer5 = new wxBoxSizer( wxHORIZONTAL );
 
 	m_textCtrl_path_mods_folder = new wxTextCtrl( sbSizer2->GetStaticBox(), wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
-	m_textCtrl_path_mods_folder->SetToolTip( wxT("Mod Organizer's game profile mods folder.") );
+	m_textCtrl_path_mods_folder->SetToolTip( wxT("Mod Organizer's game profile Mods folder path.\n\nIf unsure, open Mod Organizer. In its Menu: Tools -> Settings -> Paths.\nCopy the Mods value.\n\nIf Mods value starts with %BASE_DIR%, then combine Base Directory value with whatever follows %BASE_DIR% in the Mods value.") );
 
 	bSizer5->Add( m_textCtrl_path_mods_folder, 1, wxALL, 2 );
 
