@@ -21,7 +21,9 @@ This is a GUI tool that supplements Mod Organizer's `root_builder` plugin. It au
 - Install mods in Mod Organizer regularly. **Don't** create the **root** folders and move files and directories manually.
 - Run **root_builder_mover.exe**.
 - Pick the profile for your game.
-- Set the Mods path.
+- Set the Mods path. It should point to the **Mods** dir in your Mod Organizer's profile dir for the respective game.
+  - *If unsure, open Mod Organizer. In its Menu: **Tools -> Settings -> Paths**. Copy the **Mods** value.*
+  - *If Mods value starts with %BASE_DIR%, then combine **Base Directory** value with whatever **follows %BASE_DIR%** in the Mods value.*
 - Click **Simulate** to see what it would do. This step is optional.
 - Click **Run** to apply changes.
 - *The **Update** button checks if the bundled.cfg in this repository contains new profiles and downloads it if it does.*
@@ -64,14 +66,6 @@ The app comes with several pre-configured profiles ready for use. You can base y
 - To base your profile off a bundled one, select a profile and modify it however you want.
 - You can use the same name for your profile if you want to.
 - Your profiles are saved into the **custom.cfg** file next to the tool's exe file. Profiles with the same name in custom.cfg are loaded over the bundled ones.
-
-## Usage
-
-- Open the tool and select the desired game profile.
-- Configure the settings as necessary.
-  - The **mods path** directory should point to the **mods** dir in your Mod Organizer's profile dir for the respective game.
-- (Optional, but recommended, especially when configuring a new profile) Click the **Simulate** button to see what actions would an actual Run execute.
-- Click the **Run** button to execute the file organization.
 
 ## Conclusion
 
