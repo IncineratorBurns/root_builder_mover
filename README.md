@@ -4,6 +4,7 @@ This is a GUI tool that supplements Mod Organizer's `root_builder` plugin. It au
 
 ## Features
 
+- **Saves you from the hassle of remembering which folders and files have to be moved into the root folder and doing it all manually where needed.**
 - Doesn't have any specific requirements. Supports anything. Profiles for **Cyberpunk 2077**, **Skyrim**, and **Fallout** are bundled in.
 - Simple configuration through an intuitive GUI.
 - Automatically detects and organizes files into the correct mod directories.
@@ -14,6 +15,16 @@ This is a GUI tool that supplements Mod Organizer's `root_builder` plugin. It au
 - Download the latest release.
 - Unpack in a folder on your system.
 - Note: don't unpack game tools or install games in general into Program Files, because it's a special folder in Windows and opertaing on files within it requires administrator's rights.
+
+## Usage
+
+- Install mods in Mod Organizer regularly. **Don't** create the **root** folders and move files and directories manually.
+- Run **root_builder_mover.exe**.
+- Pick the profile for your game.
+- Set the Mods path.
+- Click **Simulate** to see what it would do. This step is optional.
+- Click **Run** to apply changes.
+- *The **Update** button checks if the bundled.cfg in this repository contains new profiles and downloads it if it does.*
 
 ## Configuration
 
